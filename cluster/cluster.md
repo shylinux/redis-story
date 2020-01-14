@@ -1,53 +1,59 @@
-{{title "redis"}}
-{{brief `redis是一种简单的数据存储`}}
+# {{title "redis"}}
+{{brief "简介" `redis是一种简单高效的数据存储。`}}
 {{refer "官方网站" `
 官网 https://redis.io
 开源 https://github.com/antirez/redis
 `}}
 
-{{chapter "下载安装"}}
-{{shell "下载源码" "usr" "install" ` wget http://download.redis.io/releases/redis-5.0.7.tar.gz`}}
+## {{chapter "下载安装"}}
+{{shell "下载源码" "usr" "install" `wget http://download.redis.io/releases/redis-5.0.7.tar.gz`}}
 {{shell "解压源码" "usr" "install" `tar xvf redis-5.0.7.tar.gz`}}
-{{shell "编译源码" "usr" "install" `cd redis-5.0.7 && make && PREFIX=../../cluster make install`}}
+{{shell "编译源码" "usr" "install" `cd redis-5.0.7 && make && make install PREFIX=../../cluster`}}
 
 {{shell "启动服务" "usr/redis-5.0.7" "install" `src/redis-server`}}
 {{shell "启动终端" "usr/redis-5.0.7" "install" `src/redis-cli`}}
 
-{{chapter "项目结构"}}
+## {{chapter "项目结构"}}
 {{shell "项目目录" "usr" `dir redis-5.0.7`}}
 {{shell "源码目录" "usr" `dir redis-5.0.7/src`}}
-{{shell "生成索引" "usr" "install" `ctags -a tags *`}}
+{{shell "生成索引" "usr/redis-5.0.7/src" "install" `ctags -a tags *`}}
 
-{{chapter "启动流程"}}
+## {{chapter "启动流程"}}
 {{order "启动流程" `
 server.h
 server.c
-redis-cli.c
 `}}
 
 {{stack "启动流程" `
 main() bg red
     initServerConfig()
         server:redisServer
+    moduleInitModulesSystem()
+        server.loadmodule_queue:list
     initSentinelConfig()
     initSentinel()
         sentinel:sentinelState
     loadServerConfig()
+        fopen()
         loadServerConfigFromString()
-            lines[i]=for_sdssplitlen()
+            lines[]=sdssplitlen()
             argv=sdssplitargs(lines[i])
             server.port=atoi(argv[1])
     daemonize()
+    createPidFile()
+    redisSetProcTitle()
     initServer()
         setupSignalHandlers()
         openlog()
         aeCreateEventLoop()
+            server.el:aeEventLoop
             aeApiCreate()
                 epoll_create()
-        listenToPort()
+        listenToPort(server.port)
             anetTcpServer()
         anetUnixServer()
-        aeCreateTimeEvent()
+        server.db:[]redisDb
+        aeCreateTimeEvent(serverCron)
         aeCreateFileEvent(acceptTcpHandler)
         aeCreateFileEvent(acceptUnixHandler)
         clusterInit()
@@ -58,9 +64,11 @@ main() bg red
         slowlogInit()
         latencyMonitorInit()
     moduleLoadFromQueue()
+        moduleLoad()
+            RedisModule_onLoad()
     loadDataFromDisk()
-    aeSetBeforeSleepProc()
-    aeSetAfterSleepProc()
+    aeSetBeforeSleepProc(beforeSleep)
+    aeSetAfterSleepProc(afterSleep)
     aeMain(eventLoop) bg red
         while(!eventLoop->stop)
             eventLoop.beforesleep(eventLoop)/beforeSleep(eventLoop)
@@ -73,7 +81,8 @@ main() bg red
             aeProcessEvents()
                 aeGetTime()
                 aeApiPoll()
-                processTimeEvents()
+                    epoll_wait()
+                eventLoop.aftersleep(eventLoop)/afterSleep(eventLoop)
                 fe.rfileProc()/acceptTcpHandler() bg green
                     anetTcpAccept()
                     acceptCommonHandler()
@@ -93,6 +102,8 @@ main() bg red
                                             lookupKeyRead(c.db,key)
                                             addReply(c,reply)
                 fe.wfileProc()
+                processTimeEvents(eventLoop)
+                    te.timeProc(eventLoop)
 `}}
 
 
