@@ -1,4 +1,4 @@
-package cluster
+package structs
 
 import (
 	"github.com/shylinux/icebergs"
@@ -6,16 +6,16 @@ import (
 	"github.com/shylinux/toolkits"
 )
 
-var Index = &ice.Context{Name: "cluster", Help: "cluster",
+var Index = &ice.Context{Name: "structs", Help: "structs",
 	Caches: map[string]*ice.Cache{},
 	Configs: map[string]*ice.Config{
-		"cluster": {Name: "cluster", Help: "cluster", Value: kit.Data(kit.MDB_SHORT, "name")},
+		"structs": {Name: "structs", Help: "structs", Value: kit.Data(kit.MDB_SHORT, "name")},
 	},
 	Commands: map[string]*ice.Command{
 		ice.ICE_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 		ice.ICE_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 
-		"cluster": {Name: "cluster", Help: "cluster", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+		"structs": {Name: "structs", Help: "structs", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
             m.Echo("hello world")
 		}},
 	},
