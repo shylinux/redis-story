@@ -1,0 +1,29 @@
+title "redis"
+
+field "自动化" favor 
+
+field "官网" favor args `[ 官网 ]`
+
+field "下载" favor args `[ 下载 ]`
+
+field "服务器" web.wiki.server.server
+
+field "命令行" web.wiki.server.client inputs `[
+    {_input text name cmd value get }
+    {_input text name key value hi }
+    {_input button name 查看 }
+]`
+
+field "命令行" web.wiki.server.client inputs `[
+    {_input text name cmd value set }
+    {_input text name key value hi }
+    {_input text name value value hello }
+    {_input button name 修改 }
+]`
+
+field "编辑器" favor args `[ 编辑器 ]`
+
+field "启动" favor args `[ 启动 ]`
+
+field "数据结构" favor args `[ 数据结构 ]`
+
