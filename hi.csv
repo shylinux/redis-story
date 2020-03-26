@@ -1,0 +1,26 @@
+favor,type,name,text,extra
+官网,spide,官网,https://redis.io/,{}
+官网,spide,下载,https://redis.io/download,{}
+官网,spide,文档,https://redis.io/documentation,{}
+下载,shell,目录,mkdir usr,{}
+下载,shell,目录,cd usr/,{}
+下载,shell,下载,wget http://download.redis.io/releases/redis-5.0.8.tar.gz,{}
+下载,shell,解压,tar xvf redis-5.0.8.tar.gz,{}
+下载,shell,目录,cd redis-5.0.8/,{}
+下载,shell,工具,apk add gcc make,{}
+下载,shell,工具,apk add build-base,{}
+下载,shell,工具,apk add linux-headers,{}
+下载,shell,编译,make,{}
+下载,shell,安装,make install,{}
+启动流程,vimrc,程序入口,"int main(int argc, char **argv) {","{""buf"":""usr/redis-5.0.8/src/server.c"",""col"":""1"",""pwd"":""/root"",""row"":""4040""}"
+请求响应,vimrc,建立连接,"void acceptTcpHandler(aeEventLoop *el, int fd, void *privdata, int mask) {","{""buf"":""usr/redis-5.0.8/src/networking.c"",""col"":""1"",""pwd"":""/root"",""row"":""734""}"
+请求响应,vimrc,接收请求,"void readQueryFromClient(aeEventLoop *el, int fd, void *privdata, int mask) {","{""buf"":""usr/redis-5.0.8/src/networking.c"",""col"":""1"",""pwd"":""/root"",""row"":""1514""}"
+请求响应,vimrc,解析命令,int processCommand(client *c) {,"{""buf"":""usr/redis-5.0.8/src/server.c"",""col"":""1"",""pwd"":""/root"",""row"":""2575""}"
+数据结构,vimrc,intset,typedef struct intset {,"{""buf"":""usr/redis-5.0.8/src/intset.h"",""col"":""1"",""pwd"":""/root"",""row"":""35""}"
+数据结构,vimrc,dict,typedef struct dict {,"{""buf"":""usr/redis-5.0.8/src/dict.h"",""col"":""1"",""pwd"":""/root"",""row"":""76""}"
+数据结构,vimrc,zskiplist,typedef struct zskiplist {,"{""buf"":""usr/redis-5.0.8/src/server.h"",""col"":""19"",""pwd"":""/root"",""row"":""821""}"
+系统架构,vimrc,命令列表,struct redisCommand redisCommandTable[] = {,"{""buf"":""usr/redis-5.0.8/src/server.c"",""col"":""5"",""pwd"":""/root"",""row"":""127""}"
+系统架构,vimrc,set命令,"{""sadd"",saddCommand,-3,""wmF"",0,NULL,1,1,1,0,0},","{""buf"":""usr/redis-5.0.8/src/server.c"",""col"":""9"",""pwd"":""/root"",""row"":""165""}"
+系统架构,vimrc,zset命令,"{""zadd"",zaddCommand,-4,""wmF"",0,NULL,1,1,1,0,0},","{""buf"":""usr/redis-5.0.8/src/server.c"",""col"":""9"",""pwd"":""/root"",""row"":""180""}"
+系统架构,vimrc,数据对象,typedef struct redisObject {,"{""buf"":""usr/redis-5.0.8/src/server.h"",""col"":""1"",""pwd"":""/root"",""row"":""615""}"
+系统架构,vimrc,数据模型,typedef struct redisDb {,"{""buf"":""usr/redis-5.0.8/src/server.h"",""col"":""1"",""pwd"":""/root"",""row"":""648""}"
