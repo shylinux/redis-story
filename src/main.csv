@@ -24,3 +24,4 @@ favor,type,name,text,extra
 系统架构,vimrc,zset命令,"{""zadd"",zaddCommand,-4,""wmF"",0,NULL,1,1,1,0,0},","{""buf"":""usr/redis-5.0.8/src/server.c"",""col"":""9"",""pwd"":""/root"",""row"":""180""}"
 系统架构,vimrc,数据对象,typedef struct redisObject {,"{""buf"":""usr/redis-5.0.8/src/server.h"",""col"":""1"",""pwd"":""/root"",""row"":""615""}"
 系统架构,vimrc,数据模型,typedef struct redisDb {,"{""buf"":""usr/redis-5.0.8/src/server.h"",""col"":""1"",""pwd"":""/root"",""row"":""648""}"
+系统架构,vimrc,zset,"void zaddGenericCommand(client *c, int flags) {","{""buf"":""usr/redis-5.0.8/src/t_zset.c"",""col"":""1"",""pwd"":""/home/shaoying/work/20200108-redis_story"",""row"":""1532""}"

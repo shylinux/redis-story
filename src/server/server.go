@@ -15,6 +15,10 @@ var Index = &ice.Context{Name: "server", Help: "服务器",
 		ice.ICE_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 		ice.ICE_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 
+		"run": {Name: "run port", Help: "run", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+			m.Cmdy(ice.CLI_DAEMON, "bin/redis-server", "--port", kit.Select("8089", arg, 0))
+		}},
+
 		"server": {Name: "server", Help: "服务器", List: kit.List(
 			kit.MDB_INPUT, "button", "name", "启动",
 		), Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {

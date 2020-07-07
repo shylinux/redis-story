@@ -1,4 +1,4 @@
-package cluster
+package raft
 
 import (
 	"github.com/shylinux/icebergs"
@@ -6,20 +6,19 @@ import (
 	"github.com/shylinux/toolkits"
 )
 
-var Index = &ice.Context{Name: "cluster", Help: "cluster",
+var Index = &ice.Context{Name: "raft", Help: "raft",
 	Caches: map[string]*ice.Cache{},
 	Configs: map[string]*ice.Config{
-		"cluster": {Name: "cluster", Help: "cluster", Value: kit.Data(kit.MDB_SHORT, "name")},
+		"raft": {Name: "raft", Help: "raft", Value: kit.Data(kit.MDB_SHORT, "name")},
 	},
 	Commands: map[string]*ice.Command{
 		ice.ICE_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 		ice.ICE_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 
-		"cluster": {Name: "cluster", Help: "cluster", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-            m.Echo("hello world")
+		"raft": {Name: "raft", Help: "raft", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+			m.Echo("hello world")
 		}},
 	},
 }
 
 func init() { wiki.Index.Register(Index, nil) }
-

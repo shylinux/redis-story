@@ -1,4 +1,4 @@
-package structs
+package client
 
 import (
 	"github.com/shylinux/icebergs"
@@ -6,20 +6,25 @@ import (
 	"github.com/shylinux/toolkits"
 )
 
-var Index = &ice.Context{Name: "structs", Help: "structs",
+var Index = &ice.Context{Name: "client", Help: "client",
 	Caches: map[string]*ice.Cache{},
 	Configs: map[string]*ice.Config{
-		"structs": {Name: "structs", Help: "structs", Value: kit.Data(kit.MDB_SHORT, "name")},
+		"client": {Name: "client", Help: "client", Value: kit.Data(kit.MDB_SHORT, "name")},
 	},
 	Commands: map[string]*ice.Command{
 		ice.ICE_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 		ice.ICE_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 
-		"structs": {Name: "structs", Help: "structs", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-            m.Echo("hello world")
+		"do": {Name: "do address cmd arg...", Help: "do", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+			if redis, err := NewClient(arg[0]); m.Assert(err) {
+				defer redis.Close()
+
+				if res, err := redis.Do(arg[1:]...); m.Assert(err) {
+					m.Echo("%v", res)
+				}
+			}
 		}},
 	},
 }
 
 func init() { wiki.Index.Register(Index, nil) }
-

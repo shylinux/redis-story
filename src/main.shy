@@ -1,0 +1,29 @@
+title "20200108-redis_story"
+
+field "自动化" favor 
+field "自动化" favor inputs `[
+    { _input text value save }
+    { _input text value src/main.csv }
+    { _input text value 官网 }
+    { _input text value 下载 }
+    { _input text value 启动流程 }
+    { _input text value 请求响应 }
+    { _input text value 网络路由 }
+    { _input text value 数据结构 }
+    { _input text value 系统架构 }
+    { _input text value 服务集群 }
+    { _input button value 保存 action auto }
+]`
+
+field "官网" favor args `[ 官网 ]`
+field "下载" favor args `[ 下载 ]`
+field "文件" nfs.dir args `usr/redis-5.0.8`
+
+source server/server.shy
+
+source client/client.shy
+
+source data/data.shy
+
+source raft/raft.shy
+
