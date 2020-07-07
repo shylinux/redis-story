@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/shylinux/icebergs"
+	ice "github.com/shylinux/icebergs"
 	_ "github.com/shylinux/icebergs/base"
 	_ "github.com/shylinux/icebergs/core"
 	_ "github.com/shylinux/icebergs/misc"
-	"github.com/shylinux/toolkits"
+	kit "github.com/shylinux/toolkits"
 
 	"github.com/shylinux/icebergs/core/wiki"
 
-	_ "github.com/shylinux/linux-story/cli/make"
-	_ "github.com/shylinux/linux-story/cli/text"
+	// _ "github.com/shylinux/linux-story/cli/make"
+	// _ "github.com/shylinux/linux-story/cli/text"
 	_ "github.com/shylinux/redis-story/src/client"
 	_ "github.com/shylinux/redis-story/src/data"
 	_ "github.com/shylinux/redis-story/src/raft"

@@ -1,49 +1,105 @@
 package server
 
 import (
-	"github.com/shylinux/icebergs"
-	"github.com/shylinux/icebergs/core/wiki"
-	"github.com/shylinux/toolkits"
+	ice "github.com/shylinux/icebergs"
+	"github.com/shylinux/icebergs/base/cli"
+	"github.com/shylinux/icebergs/base/gdb"
+	"github.com/shylinux/icebergs/base/nfs"
+	"github.com/shylinux/icebergs/base/tcp"
+	"github.com/shylinux/icebergs/base/web"
+	"github.com/shylinux/icebergs/core/code"
+	kit "github.com/shylinux/toolkits"
+
+	"net/http"
+	"path"
+	"strings"
 )
 
-var Index = &ice.Context{Name: "server", Help: "服务器",
+const (
+	REDIS = "redis"
+
+	SERVER = "server"
+	CLIENT = "client"
+	BENCH  = "bench"
+)
+
+var Index = &ice.Context{Name: REDIS, Help: "redis",
 	Caches: map[string]*ice.Cache{},
 	Configs: map[string]*ice.Config{
-		"server": {Name: "server", Help: "服务器", Value: kit.Data(kit.MDB_SHORT, "name", "pid")},
+		SERVER: {Name: SERVER, Help: "服务器", Value: kit.Data(
+			"source", "http://download.redis.io/releases/redis-5.0.4.tar.gz",
+		)},
 	},
 	Commands: map[string]*ice.Command{
-		ice.ICE_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
-		ice.ICE_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
+		ice.CTX_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
+		ice.CTX_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 
-		"run": {Name: "run port", Help: "run", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-			m.Cmdy(ice.CLI_DAEMON, "bin/redis-server", "--port", kit.Select("8089", arg, 0))
-		}},
+		SERVER: {Name: "server port 查看:button=auto 启动:button 编译:button 下载:button", Help: "服务器", Action: map[string]*ice.Action{
+			"install": {Name: "install", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
+				// 下载
+				source := m.Conf(SERVER, "meta.source")
+				msg := m.Cmd(web.SPIDE, "dev", web.CACHE, http.MethodGet, source)
+				p := path.Join(m.Conf("web.code._install", "meta.path"), path.Base(source))
+				m.Cmd(web.CACHE, web.WATCH, msg.Append(web.DATA), p)
 
-		"server": {Name: "server", Help: "服务器", List: kit.List(
-			kit.MDB_INPUT, "button", "name", "启动",
-		), Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-			msg := m.Cmd("web.code.docker.command", m.Conf(ice.CLI_RUNTIME, "node.name"), "ps")
-			msg.Split(msg.Result(), "", "", "\n").Table(func(index int, value map[string]string, head []string) {
-				if value["COMMAND"] == "redis-server" {
-					m.Push("CONTAINER", m.Conf(ice.CLI_RUNTIME, "node.name"))
-					m.Push("COMMAND", value["COMMAND"])
-					m.Push("PID", value["PID"])
+				// 解压
+				m.Option(cli.CMD_DIR, m.Conf("web.code._install", "meta.path"))
+				m.Cmdy(cli.SYSTEM, "tar", "xvf", path.Base(source))
+			}},
+			"compile": {Name: "compile", Help: "编译", Hand: func(m *ice.Message, arg ...string) {
+				// 编译
+				source := m.Conf(SERVER, "meta.source")
+				m.Option(cli.CMD_DIR, path.Join(m.Conf("web.code._install", "meta.path"), strings.TrimSuffix(path.Base(source), ".tar.gz")))
+				m.Cmdy(cli.SYSTEM, "make")
+
+				// 链接
+				m.Cmd(nfs.LINK, "bin/redis-cli", path.Join(m.Option(cli.CMD_DIR), "src/redis-cli"))
+				m.Cmd(nfs.LINK, "bin/redis-server", path.Join(m.Option(cli.CMD_DIR), "src/redis-server"))
+				m.Cmd(nfs.LINK, "bin/redis-benchmark", path.Join(m.Option(cli.CMD_DIR), "src/redis-benchmark"))
+			}},
+			gdb.START: {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
+				if m.Option("port") == "" {
+					m.Option("port", m.Cmdx(tcp.PORT, "get"))
 				}
+				m.Cmdy(cli.DAEMON, "bin/redis-server", "--port", m.Option("port"))
+			}},
+			gdb.STOP: {Name: "stop", Help: "停止", Hand: func(m *ice.Message, arg ...string) {
+				m.Cmdy(cli.SYSTEM, "kill", m.Option("PID"))
+			}},
+		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+			m.Split(m.Cmdx(cli.SYSTEM, "sh", "-c", "ps aux|grep redis-server|grep -v grep"),
+				"USER PID CPU MEM VSZ RSS TTY STAT START TIME COMMAND", " ", "\n")
+			m.Table(func(index int, value map[string]string, head []string) {
+				ls := kit.Split(value["COMMAND"], " ", " ")
+				if len(ls) > 1 {
+					if ls = kit.Split(ls[1], ":", ":"); len(ls) > 1 {
+						m.Push("port", ls[1])
+						return
+					}
+				}
+				m.Push("port", "8397")
 			})
-
-			if m.Append("PID") == "" {
-				m.Option("cmd_type", "daemon")
-				m.Cmdy("web.code.docker.command", m.Conf(ice.CLI_RUNTIME, "node.name"), "redis-server")
-			}
+			m.Appendv(ice.MSG_APPEND, "USER", "PID", "STAT", "START", "port", "COMMAND")
+			m.PushAction("停止")
 		}},
-		"client": {Name: "client", Help: "命令行", List: kit.List(
-			kit.MDB_INPUT, "text", "name", "cmd", "value", "get",
-			kit.MDB_INPUT, "text", "name", "name", "value", "hi",
-			kit.MDB_INPUT, "button", "name", "查看",
-		), Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-			m.Cmdy("web.code.docker.command", m.Conf(ice.CLI_RUNTIME, "node.name"), "redis-cli", arg)
+		CLIENT: {Name: "client port cmd key arg 执行:button 返回:button", Help: "客户端", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+			if len(arg) == 0 || arg[0] == "" || arg[0] == "0" {
+				m.Cmdy(SERVER)
+				return
+			}
+			m.Cmdy(cli.SYSTEM, "bin/redis-cli", "-p", arg[0], arg[1:])
+		}},
+		BENCH: {Name: "bench port cmd 执行:button 返回:button", Help: "压测", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+			if len(arg) == 0 || arg[0] == "" || arg[0] == "0" {
+				m.Cmdy(SERVER)
+				return
+			}
+			for _, k := range arg[1:] {
+				m.Push("cmd", k)
+				m.Push("res", m.Cmdx(cli.SYSTEM, "bin/redis-benchmark", "-p", arg[0], "-t", k))
+			}
 		}},
 	},
 }
 
-func init() { wiki.Index.Register(Index, nil) }
+func init() { code.Index.Register(Index, nil) }

@@ -1,29 +1,9 @@
 chapter "server"
 
-field "服务器" server.server
-
-field "查找" cli.text.grep inputs `[
-    {_input text name name value "int main" }
-    {_input text name path value "usr/redis-5.0.8/src" }
-    {_input button name 查找 }
-    {_input button name 返回 cb Last }
-]`
-
-field "索引" cli.make.tag
-
-field "索引" `cli.make.tag find` inputs `[
-    {_input text name name }
-    {_input text name id }
-    {_input button name 查找 }
-    {_input button name 返回 cb Last }
-]`
-
-field "启动流程" favor args `启动流程`
-field "请求响应" favor args `请求响应`
-field "网络路由" favor args `网络路由`
-
-field "数据结构" favor args `数据结构`
-field "系统架构" favor args `系统架构`
-field "服务集群" favor args `服务集群`
-
+field "服务器" web.code.redis.server
+field "客户端" web.code.redis.client args `[ "0" get hi ]`
+field "客户端" web.code.redis.client args `[ "0" set hi hello ]`
+field "客户端" web.code.redis.client args `[ "0" set hi world ]`
+field "压测"   web.code.redis.bench args `[ "0" GET ]`
+field "压测"   web.code.redis.bench args `[ "0" SET ]`
 

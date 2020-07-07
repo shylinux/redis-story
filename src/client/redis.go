@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/shylinux/toolkits"
+	kit "github.com/shylinux/toolkits"
 
 	"bufio"
 	"errors"

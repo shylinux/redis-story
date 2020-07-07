@@ -1,22 +1,5 @@
 chapter "client"
 
-field "命令行" server.client inputs `[
-    {_input text name cmd value get }
-    {_input text name key value hi }
-    {_input button name 查看 }
-]` class float
-
-field "命令行" server.client inputs `[
-    {_input text name cmd value set }
-    {_input text name key value hi }
-    {_input text name value value hello }
-    {_input button name 修改 }
-]` class float
-
-field "命令行" server.client inputs `[
-    {_input text name cmd value set }
-    {_input text name key value hi }
-    {_input text name value value world }
-    {_input button name 修改 }
-]` class float
-
+field "client" client.do args `[ :8292 set hi hello ]`
+field "client" client.do args `[ :8292 set hi world ]`
+field "client" client.do args `[ :8292 get hi ]`

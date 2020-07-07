@@ -1,21 +1,25 @@
 package client
 
 import (
-	"github.com/shylinux/icebergs"
+	ice "github.com/shylinux/icebergs"
 	"github.com/shylinux/icebergs/core/wiki"
-	"github.com/shylinux/toolkits"
+	kit "github.com/shylinux/toolkits"
 )
 
-var Index = &ice.Context{Name: "client", Help: "client",
+const (
+	CLIENT = "client"
+)
+
+var Index = &ice.Context{Name: CLIENT, Help: "client",
 	Caches: map[string]*ice.Cache{},
 	Configs: map[string]*ice.Config{
-		"client": {Name: "client", Help: "client", Value: kit.Data(kit.MDB_SHORT, "name")},
+		CLIENT: {Name: CLIENT, Help: "client", Value: kit.Data(kit.MDB_SHORT, "name")},
 	},
 	Commands: map[string]*ice.Command{
-		ice.ICE_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
-		ice.ICE_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
+		ice.CTX_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
+		ice.CTX_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 
-		"do": {Name: "do address cmd arg...", Help: "do", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+		"do": {Name: "do address cmd key value", Help: "do", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			if redis, err := NewClient(arg[0]); m.Assert(err) {
 				defer redis.Close()
 
