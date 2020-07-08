@@ -24,7 +24,6 @@ const (
 )
 
 var Index = &ice.Context{Name: REDIS, Help: "redis",
-	Caches: map[string]*ice.Cache{},
 	Configs: map[string]*ice.Config{
 		SERVER: {Name: SERVER, Help: "服务器", Value: kit.Data(
 			"source", "http://download.redis.io/releases/redis-5.0.4.tar.gz",
@@ -70,8 +69,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			m.Split(m.Cmdx(cli.SYSTEM, "sh", "-c", "ps aux|grep redis-server|grep -v grep"),
 				"USER PID CPU MEM VSZ RSS TTY STAT START TIME COMMAND", " ", "\n")
 			m.Table(func(index int, value map[string]string, head []string) {
-				ls := kit.Split(value["COMMAND"], " ", " ")
-				if len(ls) > 1 {
+				if ls := kit.Split(value["COMMAND"], " ", " "); len(ls) > 1 {
 					if ls = kit.Split(ls[1], ":", ":"); len(ls) > 1 {
 						m.Push("port", ls[1])
 						return
@@ -88,6 +86,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 				return
 			}
 			m.Cmdy(cli.SYSTEM, "bin/redis-cli", "-p", arg[0], arg[1:])
+			m.Set(ice.MSG_APPEND)
 		}},
 		BENCH: {Name: "bench port cmd 执行:button 返回:button", Help: "压测", Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			if len(arg) == 0 || arg[0] == "" || arg[0] == "0" {

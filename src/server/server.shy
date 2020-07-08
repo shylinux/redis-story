@@ -1,9 +1,10 @@
 chapter "server"
 
 field "服务器" web.code.redis.server
-field "客户端" web.code.redis.client args `[ "0" get hi ]`
-field "客户端" web.code.redis.client args `[ "0" set hi hello ]`
-field "客户端" web.code.redis.client args `[ "0" set hi world ]`
-field "压测"   web.code.redis.bench args `[ "0" GET ]`
-field "压测"   web.code.redis.bench args `[ "0" SET ]`
+field "命令" web.code.redis.client args `[ "''" get hi ]`
+field "命令" web.code.redis.client args `[ "''" set hi hello ]`
+field "命令" web.code.redis.client args `[ "''" set hi world ]`
+field "压测" web.code.redis.bench args `[ "''" GET ]`
+field "压测" web.code.redis.bench args `[ "''" SET ]`
 
+field "源码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h ]`
