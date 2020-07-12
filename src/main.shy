@@ -2,7 +2,7 @@ title "20200108-redis_story"
 
 refer "官网" `
 官网 https://redis.io
-文档 https://redis.io/documention
+文档 https://redis.io/documentation
 源码 https://github.com/redis/redis
 `
 
