@@ -11,13 +11,13 @@ import (
 	kit "github.com/shylinux/toolkits"
 
 	"net/http"
+	"os"
 	"path"
 	"strings"
 )
 
+const REDIS = "redis"
 const (
-	REDIS = "redis"
-
 	SERVER = "server"
 	CLIENT = "client"
 	BENCH  = "bench"
@@ -37,13 +37,16 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			"install": {Name: "install", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
 				// 下载
 				source := m.Conf(SERVER, "meta.source")
-				msg := m.Cmd(web.SPIDE, "dev", web.CACHE, http.MethodGet, source)
 				p := path.Join(m.Conf("web.code._install", "meta.path"), path.Base(source))
-				m.Cmd(web.CACHE, web.WATCH, msg.Append(web.DATA), p)
+				if _, e := os.Stat(p); e != nil {
+					msg := m.Cmd(web.SPIDE, "dev", web.CACHE, http.MethodGet, source)
+					m.Cmd(web.CACHE, web.WATCH, msg.Append(web.DATA), p)
+				}
 
 				// 解压
 				m.Option(cli.CMD_DIR, m.Conf("web.code._install", "meta.path"))
-				m.Cmdy(cli.SYSTEM, "tar", "xvf", path.Base(source))
+				m.Cmd(cli.SYSTEM, "tar", "xvf", path.Base(source))
+				m.Echo(p)
 			}},
 			"compile": {Name: "compile", Help: "编译", Hand: func(m *ice.Message, arg ...string) {
 				// 编译
