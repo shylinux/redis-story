@@ -7,8 +7,4 @@ field "命令" web.code.redis.client args `[ "''" set hi world ]`
 field "压测" web.code.redis.bench args `[ "''" GET ]`
 field "压测" web.code.redis.bench args `[ "''" SET ]`
 
-field "redis_源码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`
-field "icebergs_源码" web.code.inner args `[ usr/icebergs type.go 1 ]`
-field "toolkits_源码" web.code.inner args `[ usr/toolkits type.go 1 ]`
-field "volcanos_源码" web.code.inner args `[ usr/volcanos proto.js 1 ]`
-field "volcanos_源码" web.code.inner args `[ usr/intshell plug.sh 1 ]`
+field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`
