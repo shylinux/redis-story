@@ -1,9 +1,6 @@
 package server
 
 import (
-	"os"
-	"runtime"
-
 	ice "github.com/shylinux/icebergs"
 	"github.com/shylinux/icebergs/base/cli"
 	"github.com/shylinux/icebergs/base/gdb"
@@ -11,7 +8,9 @@ import (
 	"github.com/shylinux/icebergs/core/code"
 	kit "github.com/shylinux/toolkits"
 
+	"os"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -35,43 +34,45 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 		ice.CTX_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {}},
 
 		SERVER: {Name: "server port=auto auto 启动:button 编译:button 下载:button", Help: "服务器", Action: map[string]*ice.Action{
-			"install": {Name: "install", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
-				m.Cmdy("web.code.install", "download", m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)))
+			"download": {Name: "download", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
+				m.Cmdy(code.INSTALL, "download", m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)))
 			}},
 			"compile": {Name: "compile", Help: "编译", Hand: func(m *ice.Message, arg ...string) {
 				name := path.Base(strings.TrimSuffix(strings.TrimSuffix(m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)), ".tar.gz"), "zip"))
-				m.Option(cli.CMD_DIR, path.Join("usr/install", name))
-				m.Cmdy(cli.SYSTEM, "make")
+				m.Option(cli.CMD_DIR, path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name))
+				m.Cmdy(cli.SYSTEM, "make", "-j4")
 			}},
 			gdb.START: {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
-				if m.Option("port") == "" {
-					m.Option("port", m.Cmdx(tcp.PORT, "get"))
+				if m.Option(tcp.PORT) == "" {
+					m.Option(tcp.PORT, m.Cmdx(tcp.PORT, "get"))
 				}
-				p := kit.Format("var/daemon/%s", m.Option("port"))
+				p := path.Join(m.Conf(cli.DAEMON, kit.MDB_PATH), m.Option(tcp.PORT))
 				os.MkdirAll(path.Join(p, "logs"), ice.MOD_DIR)
 				os.MkdirAll(path.Join(p, "bin"), ice.MOD_DIR)
 				os.MkdirAll(p, ice.MOD_DIR)
 
+				// 复制
 				name := path.Base(strings.TrimSuffix(strings.TrimSuffix(m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)), ".tar.gz"), "zip"))
-				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join("usr/install", name, "src/redis-cli"), path.Join(p, "bin"))
-				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join("usr/install", name, "src/redis-server"), path.Join(p, "bin"))
-				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join("usr/install", name, "src/redis-benchmark"), path.Join(p, "bin"))
+				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name, "src/redis-cli"), path.Join(p, "bin"))
+				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name, "src/redis-server"), path.Join(p, "bin"))
+				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name, "src/redis-benchmark"), path.Join(p, "bin"))
 
+				// 启动
 				m.Option(cli.CMD_DIR, p)
-				m.Cmdy(cli.DAEMON, "bin/redis-server", "--port", m.Option("port"))
+				m.Cmdy(cli.DAEMON, "bin/redis-server", "--port", m.Option(tcp.PORT))
 			}},
 			gdb.STOP: {Name: "stop", Help: "停止", Hand: func(m *ice.Message, arg ...string) {
-				m.Cmdy(cli.SYSTEM, "kill", m.Option("pid"))
+				m.Cmdy(cli.SYSTEM, "kill", m.Option(kit.MDB_PID))
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			if len(arg) == 0 {
 				m.Cmd(cli.DAEMON).Table(func(index int, value map[string]string, head []string) {
-					if strings.HasPrefix(value["name"], "bin/redis") {
-						m.Push("time", value["time"])
-						m.Push("port", path.Base(value["dir"]))
-						m.Push("status", value["status"])
-						m.Push("name", value["name"])
-						m.Push("pid", value["pid"])
+					if strings.HasPrefix(value[kit.MDB_NAME], "bin/redis") {
+						m.Push(kit.MDB_TIME, value[kit.MDB_TIME])
+						m.Push(kit.MDB_PORT, path.Base(value[kit.MDB_DIR]))
+						m.Push(kit.MDB_STATUS, value[kit.MDB_STATUS])
+						m.Push(kit.MDB_NAME, value[kit.MDB_NAME])
+						m.Push(kit.MDB_PID, value[kit.MDB_PID])
 
 					}
 				})

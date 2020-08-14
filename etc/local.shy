@@ -1,12 +1,1 @@
 ~aaa
-    role root shy
-~ssh
-    target web.wiki.
-
-~web.code.tmux
-    make redis init "1 u -p 30" "2 v" \
-        "1 k 'vim -O src/main.go src/main.shy' Enter" \
-        "2 k 'tail -f bin/boot.log' Enter" \
-        "3 k 'bin/ice.sh shutdown' Enter" \
-        "3 k 'bin/ice.sh start serve random dev' Enter"
-    make shy link miss
