@@ -54,3 +54,6 @@ dkms.conf
 *.swp
 *.swn
 *.swo
+bin/
+var/
+usr/
