@@ -1,10 +1,12 @@
 chapter "server"
 
 field "服务器" web.code.redis.server
+field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`
+
+section "命令"
 field "命令" web.code.redis.client args `[ "''" get hi ]`
 field "命令" web.code.redis.client args `[ "''" set hi hello ]`
 field "命令" web.code.redis.client args `[ "''" set hi world ]`
 field "压测" web.code.redis.bench args `[ "''" GET ]`
 field "压测" web.code.redis.bench args `[ "''" SET ]`
 
-field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`

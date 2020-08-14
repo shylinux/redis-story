@@ -11,7 +11,6 @@ const (
 )
 
 var Index = &ice.Context{Name: CLIENT, Help: "client",
-	Caches: map[string]*ice.Cache{},
 	Configs: map[string]*ice.Config{
 		CLIENT: {Name: CLIENT, Help: "client", Value: kit.Data(kit.MDB_SHORT, "name")},
 	},
