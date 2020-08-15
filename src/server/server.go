@@ -39,23 +39,23 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			}},
 			"compile": {Name: "compile", Help: "编译", Hand: func(m *ice.Message, arg ...string) {
 				name := path.Base(strings.TrimSuffix(strings.TrimSuffix(m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)), ".tar.gz"), "zip"))
-				m.Option(cli.CMD_DIR, path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name))
+				m.Option(cli.CMD_DIR, path.Join(m.Conf(code.INSTALL, kit.META_PATH), name))
 				m.Cmdy(cli.SYSTEM, "make", "-j4")
 			}},
 			gdb.START: {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
 				if m.Option(tcp.PORT) == "" {
 					m.Option(tcp.PORT, m.Cmdx(tcp.PORT, "get"))
 				}
-				p := path.Join(m.Conf(cli.DAEMON, kit.MDB_PATH), m.Option(tcp.PORT))
+				p := path.Join(m.Conf(cli.DAEMON, kit.META_PATH), m.Option(tcp.PORT))
 				os.MkdirAll(path.Join(p, "logs"), ice.MOD_DIR)
 				os.MkdirAll(path.Join(p, "bin"), ice.MOD_DIR)
 				os.MkdirAll(p, ice.MOD_DIR)
 
 				// 复制
 				name := path.Base(strings.TrimSuffix(strings.TrimSuffix(m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)), ".tar.gz"), "zip"))
-				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name, "src/redis-cli"), path.Join(p, "bin"))
-				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name, "src/redis-server"), path.Join(p, "bin"))
-				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.MDB_PATH), name, "src/redis-benchmark"), path.Join(p, "bin"))
+				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.META_PATH), name, "src/redis-cli"), path.Join(p, "bin"))
+				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.META_PATH), name, "src/redis-server"), path.Join(p, "bin"))
+				m.Cmd(cli.SYSTEM, "cp", "-r", path.Join(m.Conf(code.INSTALL, kit.META_PATH), name, "src/redis-benchmark"), path.Join(p, "bin"))
 
 				// 启动
 				m.Option(cli.CMD_DIR, p)

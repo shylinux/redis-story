@@ -1,5 +1,28 @@
 chapter "server"
 
+section "下载"
+refer `
+下载 http://download.redis.io/releases/redis-5.0.4.tar.gz
+`
+
+section "解压编译"
+spark shell `
+tar xvf redis-5.0.4.tar.gz
+cd redis-5.0.4
+make
+`
+
+section "启动服务"
+spark shell `
+src/redis-server
+`
+
+section "连接服务"
+spark shell `
+src/redis-cli
+`
+
+section "体验"
 field "服务器" web.code.redis.server
 field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`
 
