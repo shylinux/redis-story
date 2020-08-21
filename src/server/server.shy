@@ -1,35 +1,27 @@
 chapter "server"
+section "服务体验"
+field "服务器" web.code.redis.server
+field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`
 
-section "下载"
-refer `
-下载 http://download.redis.io/releases/redis-5.0.4.tar.gz
-`
-
-section "解压编译"
+section "安装编译"
 spark shell `
-tar xvf redis-5.0.4.tar.gz
-cd redis-5.0.4
-make
+wget http://download.redis.io/releases/redis-5.0.4.tar.gz
+tar xvf redis-5.0.4.tar.gz && cd redis-5.0.4
+make -j8
 `
 
 section "启动服务"
 spark shell `
-src/redis-server
+src/redis-server &
 `
 
 section "连接服务"
 spark shell `
 src/redis-cli
 `
-
-section "体验"
-field "服务器" web.code.redis.server
-field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`
-
-section "命令"
-field "命令" web.code.redis.client args `[ "''" get hi ]`
-field "命令" web.code.redis.client args `[ "''" set hi hello ]`
-field "命令" web.code.redis.client args `[ "''" set hi world ]`
-field "压测" web.code.redis.bench args `[ "''" GET ]`
-field "压测" web.code.redis.bench args `[ "''" SET ]`
-
+section "体验服务"
+spark redis `
+get hi
+set hi hello
+get hi
+`
