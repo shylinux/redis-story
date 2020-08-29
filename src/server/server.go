@@ -2,6 +2,7 @@ package server
 
 import (
 	ice "github.com/shylinux/icebergs"
+	"github.com/shylinux/icebergs/base/cli"
 	"github.com/shylinux/icebergs/core/code"
 	kit "github.com/shylinux/toolkits"
 
@@ -32,8 +33,17 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 				m.Cmdy(code.INSTALL, "build", m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)))
 			}},
 			"start": {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
-				m.Optionv("prepare", func(p string) []string { return []string{"--port", path.Base(p)} })
+				pp := ""
+				m.Optionv("prepare", func(p string) []string {
+					pp = p
+					return []string{"--port", path.Base(p)}
+				})
 				m.Cmdy(code.INSTALL, "start", m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS)), "bin/redis-server")
+
+				m.Sleep("1s")
+				m.Option(cli.CMD_DIR, pp)
+				m.Option(cli.CMD_TYPE, cli.SYSTEM)
+				m.Cmd("client", "connect", "hostport", "localhost:"+path.Base(pp)+"")
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			m.Cmdy(code.INSTALL, path.Base(m.Conf(SERVER, kit.Keys(kit.MDB_META, runtime.GOOS))), arg)
