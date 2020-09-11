@@ -7,8 +7,7 @@ section "安装编译"
 spark shell `
 wget http://download.redis.io/releases/redis-5.0.4.tar.gz
 tar xvf redis-5.0.4.tar.gz && cd redis-5.0.4
-make -j8
-make PREFIX=../install install
+make -j8 && make PREFIX=../install install
 `
 
 section "启动服务"
