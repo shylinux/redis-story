@@ -7,9 +7,7 @@ import (
 	kit "github.com/shylinux/toolkits"
 )
 
-const (
-	CLIENT = "client"
-)
+const CLIENT = "client"
 
 var Index = &ice.Context{Name: CLIENT, Help: "client",
 	Configs: map[string]*ice.Config{
@@ -21,7 +19,7 @@ var Index = &ice.Context{Name: CLIENT, Help: "client",
 		ice.CTX_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) { m.Load() }},
 		ice.CTX_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) { m.Save() }},
 
-		CLIENT: {Name: "client hash 执行:button 返回 连接 cmd:textarea", Help: "client", Action: map[string]*ice.Action{
+		CLIENT: {Name: "client hash@key 执行:button 返回 连接 cmd:textarea", Help: "client", Action: map[string]*ice.Action{
 			mdb.CREATE: {Name: "create host=localhost port=10000@key", Help: "连接", Hand: func(m *ice.Message, arg ...string) {
 				m.Cmdy(mdb.INSERT, m.Prefix(CLIENT), "", mdb.HASH, arg)
 			}},
@@ -33,19 +31,22 @@ var Index = &ice.Context{Name: CLIENT, Help: "client",
 			}},
 			mdb.INPUTS: {Name: "inputs", Help: "补全", Hand: func(m *ice.Message, arg ...string) {
 				switch arg[0] {
-				case "port":
+				case kit.MDB_PORT:
 					m.Cmdy(server.SERVER)
+				case kit.MDB_HASH:
+					m.Option(mdb.FIELDS, m.Conf(CLIENT, kit.META_FIELD))
+					m.Cmdy(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH)
 				}
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			if m.Option(mdb.FIELDS, m.Conf(CLIENT, kit.META_FIELD)); len(arg) == 0 || arg[0] == "" {
 				m.Cmdy(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH)
-				m.PushAction("删除")
+				m.PushAction(mdb.DELETE)
 				return
 			}
 
 			msg := m.Cmd(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH, kit.MDB_HASH, arg[0])
-			if redis, err := NewClient(kit.Format("%s:%s", msg.Append("host"), msg.Append("port"))); m.Assert(err) {
+			if redis, err := NewClient(kit.Format("%s:%s", msg.Append(kit.MDB_HOST), msg.Append(kit.MDB_PORT))); m.Assert(err) {
 				defer redis.Close()
 
 				if res, err := redis.Do(kit.Split(kit.Select("info CPU", arg, 1))...); m.Assert(err) {

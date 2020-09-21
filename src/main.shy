@@ -1,8 +1,8 @@
 title "redis"
 refer `
 官网 https://redis.io
-源码 https://github.com/redis/redis
 文档 https://redis.io/documentation
+源码 https://github.com/redis/redis
 `
 premenu
 
