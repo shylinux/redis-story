@@ -31,7 +31,7 @@ var Index = &ice.Context{Name: CLIENT, Help: "client",
 			}},
 			mdb.INPUTS: {Name: "inputs", Help: "补全", Hand: func(m *ice.Message, arg ...string) {
 				switch arg[0] {
-				case kit.MDB_PORT:
+				case kit.SSH_PORT:
 					m.Cmdy(server.SERVER)
 				case kit.MDB_HASH:
 					m.Option(mdb.FIELDS, m.Conf(CLIENT, kit.META_FIELD))
@@ -46,7 +46,7 @@ var Index = &ice.Context{Name: CLIENT, Help: "client",
 			}
 
 			msg := m.Cmd(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH, kit.MDB_HASH, arg[0])
-			if redis, err := NewClient(kit.Format("%s:%s", msg.Append(kit.MDB_HOST), msg.Append(kit.MDB_PORT))); m.Assert(err) {
+			if redis, err := NewClient(kit.Format("%s:%s", msg.Append(kit.SSH_HOST), msg.Append(kit.SSH_PORT))); m.Assert(err) {
 				defer redis.Close()
 
 				if res, err := redis.Do(kit.Split(kit.Select("info CPU", arg, 1))...); m.Assert(err) {
