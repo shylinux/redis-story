@@ -5,6 +5,7 @@ field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]
 
 section "安装编译"
 spark shell `
+yum install -y wget make gcc
 wget http://download.redis.io/releases/redis-5.0.4.tar.gz
 tar xvf redis-5.0.4.tar.gz && cd redis-5.0.4
 make -j8 && make PREFIX=../_install install

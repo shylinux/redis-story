@@ -2,14 +2,19 @@ package server
 
 import (
 	ice "github.com/shylinux/icebergs"
+	"github.com/shylinux/icebergs/base/gdb"
 	"github.com/shylinux/icebergs/base/mdb"
+	"github.com/shylinux/icebergs/base/tcp"
+	"github.com/shylinux/icebergs/base/web"
 	"github.com/shylinux/icebergs/core/code"
 	kit "github.com/shylinux/toolkits"
 
 	"path"
 )
 
-const SERVER = "server"
+const (
+	SERVER = "server"
+)
 const REDIS = "redis"
 
 var Index = &ice.Context{Name: REDIS, Help: "redis",
@@ -19,28 +24,28 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 		)},
 	},
 	Commands: map[string]*ice.Command{
-		SERVER: {Name: "server port path auto 压测 启动 构建 下载", Help: "服务器", Action: map[string]*ice.Action{
-			"download": {Name: "download", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
-				m.Cmdy(code.INSTALL, "download", m.Conf(SERVER, kit.META_SOURCE))
+		SERVER: {Name: "server port path auto bench start build download", Help: "服务器", Action: map[string]*ice.Action{
+			web.DOWNLOAD: {Name: "download", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
+				m.Cmdy(code.INSTALL, web.DOWNLOAD, m.Conf(SERVER, kit.META_SOURCE))
 			}},
-			"build": {Name: "build", Help: "构建", Hand: func(m *ice.Message, arg ...string) {
+			gdb.BUILD: {Name: gdb.BUILD, Help: "构建", Hand: func(m *ice.Message, arg ...string) {
 				m.Optionv("prepare", func(p string) {})
-				m.Cmdy(code.INSTALL, "build", m.Conf(SERVER, kit.META_SOURCE))
+				m.Cmdy(code.INSTALL, gdb.BUILD, m.Conf(SERVER, kit.META_SOURCE))
 			}},
-			"start": {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
+			gdb.START: {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
 				pp := ""
 				m.Optionv("prepare", func(p string) []string {
 					pp = p
 					return []string{"--port", path.Base(p)}
 				})
-				m.Cmdy(code.INSTALL, "start", m.Conf(SERVER, kit.META_SOURCE), "bin/redis-server")
+				m.Cmdy(code.INSTALL, gdb.START, m.Conf(SERVER, kit.META_SOURCE), "bin/redis-server")
 
 				m.Sleep("1s")
-				m.Cmd("client", mdb.CREATE, kit.SSH_HOST, "localhost", kit.SSH_PORT, path.Base(pp))
+				m.Cmd(m.Prefix("client"), mdb.CREATE, kit.SSH_HOST, "localhost", kit.SSH_PORT, path.Base(pp))
 			}},
-			"bench": {Name: "bench nconn=100 nreq=1000 host=localhost port=10001@key cmds=", Help: "压测", Hand: func(m *ice.Message, arg ...string) {
+			gdb.BENCH: {Name: "bench nconn=100 nreq=1000 host=localhost port=10001@key cmds=", Help: "压测", Hand: func(m *ice.Message, arg ...string) {
 				for _, k := range kit.Split(kit.Select(m.Option("cmds"), "get,set")) {
-					if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{m.Option("host") + ":" + m.Option("port")}, []string{k}, func(cmd string, arg []interface{}, res interface{}) {
+					if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{m.Option(tcp.HOST) + ":" + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []interface{}, res interface{}) {
 
 					}); m.Assert(e) {
 						m.Push("cmd", k)
@@ -55,7 +60,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			mdb.INPUTS: {Name: "inputs", Help: "补全", Hand: func(m *ice.Message, arg ...string) {
 				switch arg[0] {
 				case kit.SSH_PORT:
-					m.Cmdy(SERVER)
+					m.Cmdy(m.Prefix(SERVER))
 				}
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
