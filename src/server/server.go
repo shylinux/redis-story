@@ -43,7 +43,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 				m.Sleep("1s")
 				m.Cmd(m.Prefix("client"), mdb.CREATE, kit.SSH_HOST, "localhost", kit.SSH_PORT, path.Base(pp))
 			}},
-			gdb.BENCH: {Name: "bench nconn=100 nreq=1000 host=localhost port=10001@key cmds=", Help: "压测", Hand: func(m *ice.Message, arg ...string) {
+			gdb.BENCH: {Name: "bench host=localhost port=10001@key nconn=100 nreq=1000 cmds=", Help: "压测", Hand: func(m *ice.Message, arg ...string) {
 				for _, k := range kit.Split(kit.Select(m.Option("cmds"), "get,set")) {
 					if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{m.Option(tcp.HOST) + ":" + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []interface{}, res interface{}) {
 
@@ -61,6 +61,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 				switch arg[0] {
 				case kit.SSH_PORT:
 					m.Cmdy(m.Prefix(SERVER))
+					m.Appendv(ice.MSG_APPEND, "port", "status", "time")
 				}
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
