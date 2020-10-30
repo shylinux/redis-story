@@ -3,8 +3,10 @@ package client
 import (
 	ice "github.com/shylinux/icebergs"
 	"github.com/shylinux/icebergs/base/mdb"
+	"github.com/shylinux/icebergs/base/tcp"
 	"github.com/shylinux/redis-story/src/server"
 	kit "github.com/shylinux/toolkits"
+	log "github.com/shylinux/toolkits/logs"
 )
 
 const CLIENT = "client"
@@ -45,16 +47,27 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 				return
 			}
 
-			msg := m.Cmd(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH, kit.MDB_HASH, arg[0])
-			if redis, err := NewClient(kit.Format("%s:%s", msg.Append(kit.SSH_HOST), msg.Append(kit.SSH_PORT))); m.Assert(err) {
-				defer redis.Close()
+			m.Option(mdb.SELECT_CB, func(fields []string, value map[string]interface{}) {
+				var rp *RedisPool
+				log.Info("what client %v", value["redis_pool"])
+				switch val := value["redis_pool"].(type) {
+				case *RedisPool:
+					rp = val
+				default:
+					rp = NewRedisPool(kit.Format("%s:%s", value[tcp.HOST], value[tcp.PORT]))
+					value["redis_pool"] = rp
+				}
+
+				redis := rp.Get()
+				defer rp.Put(redis)
 
 				if res, err := redis.Do(kit.Split(kit.Select("info CPU", arg, 1))...); m.Assert(err) {
 					m.Echo("%v", res)
 				}
-			}
+			})
+			m.Cmd(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH, kit.MDB_HASH, arg[0])
 		}},
 	},
 }
 
-func init() { server.Index.Merge(Index, nil) }
+func init() { server.Index.Merge(Index) }

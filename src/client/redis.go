@@ -1,6 +1,9 @@
 package client
 
 import (
+	"strings"
+	"sync"
+
 	kit "github.com/shylinux/toolkits"
 
 	"bufio"
@@ -24,17 +27,22 @@ func (r *redis) Do(arg ...string) (interface{}, error) {
 
 	r.bio.Scan()
 	line := r.bio.Text()
+	if len(line) == 0 {
+		return nil, nil
+	}
 	switch line[0] {
 	case '-':
 		return nil, errors.New(line[1:])
 	case '+':
 		return line[1:], nil
 	case '$':
-		if kit.Int(line[1:]) > 0 {
+		list := []string{}
+		for rest := kit.Int(line[1:]); rest > 0; {
 			r.bio.Scan()
-			return r.bio.Text(), nil
+			list = append(list, r.bio.Text())
+			rest -= len(r.bio.Text()) + 1
 		}
-		return "", nil
+		return strings.Join(list, "\n"), nil
 	case ':':
 		return kit.Int(line[1:]), nil
 	case '*':
@@ -69,4 +77,26 @@ func NewClient(addr string) (*redis, error) {
 		return nil, err
 	}
 	return &redis{Conn: conn, bio: bufio.NewScanner(conn)}, nil
+}
+
+type RedisPool struct {
+	addr string
+	sync.Pool
+}
+
+func (rp *RedisPool) Get() *redis {
+	rc, _ := rp.Pool.Get().(*redis)
+	return rc
+}
+func (rp *RedisPool) Put(r *redis) {
+	rp.Pool.Put(r)
+}
+
+func NewRedisPool(addr string) *RedisPool {
+	return &RedisPool{addr: addr, Pool: sync.Pool{New: func() interface{} {
+		if c, e := NewClient(addr); e == nil {
+			return c
+		}
+		return nil
+	}}}
 }
