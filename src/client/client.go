@@ -1,28 +1,39 @@
 package client
 
 import (
+	"strings"
+	"time"
+
 	ice "github.com/shylinux/icebergs"
+	"github.com/shylinux/icebergs/base/cli"
 	"github.com/shylinux/icebergs/base/mdb"
 	"github.com/shylinux/icebergs/base/tcp"
-	"github.com/shylinux/redis-story/src/server"
 	kit "github.com/shylinux/toolkits"
-	log "github.com/shylinux/toolkits/logs"
+
+	"github.com/shylinux/redis-story/src/server"
 )
 
+const (
+	REDIS_POOL = "redis_pool"
+)
 const CLIENT = "client"
 
 var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 	Configs: map[string]*ice.Config{
-		CLIENT: {Name: CLIENT, Help: "client", Value: kit.Data(
-			kit.MDB_FIELD, "time,hash,host,port",
-		)},
+		CLIENT: {Name: CLIENT, Help: "客户端", Value: kit.Data(kit.MDB_FIELD, "time,hash,host,port")},
 	},
 	Commands: map[string]*ice.Command{
-		ice.CTX_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) { m.Load() }},
+		ice.CTX_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
+			m.Load()
+			m.Watch(server.REDIS_SERVER_START, m.Prefix(CLIENT))
+		}},
 		ice.CTX_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) { m.Save() }},
 
 		CLIENT: {Name: "client hash 执行:button 返回 create cmd:textarea", Help: "客户端", Action: map[string]*ice.Action{
-			mdb.CREATE: {Name: "create host=localhost port=10000@key", Help: "连接", Hand: func(m *ice.Message, arg ...string) {
+			server.REDIS_SERVER_START: {Name: "redis_server_start", Help: "服务", Hand: func(m *ice.Message, arg ...string) {
+				m.Cmdy(CLIENT, mdb.CREATE, tcp.HOST, m.Option(tcp.HOST), tcp.PORT, m.Option(tcp.PORT))
+			}},
+			mdb.CREATE: {Name: "create host=localhost@key port=10000@key", Help: "连接", Hand: func(m *ice.Message, arg ...string) {
 				m.Cmdy(mdb.INSERT, m.Prefix(CLIENT), "", mdb.HASH, arg)
 			}},
 			mdb.MODIFY: {Name: "modify", Help: "编辑", Hand: func(m *ice.Message, arg ...string) {
@@ -33,9 +44,9 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 			}},
 			mdb.INPUTS: {Name: "inputs", Help: "补全", Hand: func(m *ice.Message, arg ...string) {
 				switch arg[0] {
-				case kit.SSH_PORT:
-					m.Cmdy(m.Prefix("server"))
-				case kit.MDB_HASH:
+				case tcp.PORT:
+					m.Cmdy(server.SERVER).Appendv(ice.MSG_APPEND, kit.Split("port,status,pid,time"))
+				case mdb.HASH:
 					m.Option(mdb.FIELDS, m.Conf(CLIENT, kit.META_FIELD))
 					m.Cmdy(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH)
 				}
@@ -49,20 +60,28 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 
 			m.Option(mdb.SELECT_CB, func(fields []string, value map[string]interface{}) {
 				var rp *RedisPool
-				log.Info("what client %v", value["redis_pool"])
-				switch val := value["redis_pool"].(type) {
+				switch val := value[REDIS_POOL].(type) {
 				case *RedisPool:
 					rp = val
 				default:
 					rp = NewRedisPool(kit.Format("%s:%s", value[tcp.HOST], value[tcp.PORT]))
-					value["redis_pool"] = rp
+					value[REDIS_POOL] = rp
 				}
 
 				redis := rp.Get()
 				defer rp.Put(redis)
 
-				if res, err := redis.Do(kit.Split(kit.Select("info CPU", arg, 1))...); m.Assert(err) {
-					m.Echo("%v", res)
+				for _, line := range kit.Split(strings.Join(arg[1:], " "), "\n", "\n", "\n") {
+					m.Push(kit.MDB_TIME, kit.Format(time.Now()))
+					m.Push(cli.CMD, line)
+					if res, err := redis.Do(kit.Split(line)...); err == nil {
+						m.Push(cli.RES, res)
+						m.Push(cli.ERR, "")
+						m.Echo("%v", res)
+					} else {
+						m.Push(cli.RES, "")
+						m.Push(cli.ERR, err)
+					}
 				}
 			})
 			m.Cmd(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH, kit.MDB_HASH, arg[0])

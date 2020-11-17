@@ -4,9 +4,7 @@ refer `
 文档 https://redis.io/documentation
 源码 https://github.com/redis/redis
 `
-premenu
 
 source server/server.shy
-
 source client/client.shy
 

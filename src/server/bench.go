@@ -60,9 +60,7 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 	}()
 
 	// 连接池
-	rp := redis.NewPool(func() (redis.Conn, error) {
-		return redis.Dial("tcp", hosts[0])
-	}, 10)
+	rp := redis.NewPool(func() (redis.Conn, error) { return redis.Dial("tcp", hosts[0]) }, 10)
 
 	// 协程池
 	list := []interface{}{}
@@ -95,6 +93,7 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 				begin := time.Now()
 				defer func() {
 					d := time.Now().Sub(begin)
+
 					s.mu.Lock()
 					defer s.mu.Unlock()
 					s.Cost += d
