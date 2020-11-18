@@ -1,6 +1,6 @@
 chapter "server"
 field "服务器" web.code.redis.server
-field "源代码" web.code.inner args `[ usr/install/redis-5.0.4/src dict.h 82 ]`
+field "源代码" web.code.inner args `usr/install/redis-5.0.4/src dict.h 82`
 
 section "编译安装"
 spark shell `
