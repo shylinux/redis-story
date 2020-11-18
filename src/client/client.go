@@ -53,6 +53,7 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			if m.Option(mdb.FIELDS, m.Conf(CLIENT, kit.META_FIELD)); len(arg) == 0 || arg[0] == "" {
+				m.Option(mdb.FIELDS, kit.Select("time,hash,host,port", mdb.DETAIL, len(arg) > 0 && arg[0] != ""))
 				m.Cmdy(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH)
 				m.PushAction(mdb.REMOVE)
 				return
