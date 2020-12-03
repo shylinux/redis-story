@@ -32,7 +32,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			web.DOWNLOAD: {Name: "download", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
 				m.Cmdy(code.INSTALL, web.DOWNLOAD, m.Conf(SERVER, kit.META_SOURCE))
 			}},
-			gdb.BUILD: {Name: gdb.BUILD, Help: "构建", Hand: func(m *ice.Message, arg ...string) {
+			gdb.BUILD: {Name: "build", Help: "构建", Hand: func(m *ice.Message, arg ...string) {
 				m.Optionv(code.PREPARE, func(p string) {})
 				m.Cmdy(code.INSTALL, gdb.BUILD, m.Conf(SERVER, kit.META_SOURCE))
 			}},

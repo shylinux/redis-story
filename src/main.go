@@ -10,4 +10,4 @@ import (
 	_ "github.com/shylinux/redis-story/src/server"
 )
 
-func main() { ice.Run() }
+func main() { print(ice.Run()) }
