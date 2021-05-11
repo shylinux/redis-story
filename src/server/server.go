@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	REDIS_SERVER_START = "redis_server_start"
+	REDIS_SERVER_START = "redis_server.start"
 )
 const (
 	SERVER = "server"
@@ -24,7 +24,7 @@ const REDIS = "redis"
 var Index = &ice.Context{Name: REDIS, Help: "redis",
 	Configs: map[string]*ice.Config{
 		SERVER: {Name: SERVER, Help: "服务器", Value: kit.Data(
-			"source", "http://download.redis.io/releases/redis-5.0.4.tar.gz",
+			kit.SSH_SOURCE, "http://download.redis.io/releases/redis-5.0.4.tar.gz",
 		)},
 	},
 	Commands: map[string]*ice.Command{
