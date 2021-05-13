@@ -5,6 +5,7 @@ import (
 	"time"
 
 	ice "github.com/shylinux/icebergs"
+	"github.com/shylinux/icebergs/base/cli"
 	"github.com/shylinux/icebergs/base/gdb"
 	"github.com/shylinux/icebergs/base/mdb"
 	"github.com/shylinux/icebergs/base/tcp"
@@ -28,7 +29,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 		)},
 	},
 	Commands: map[string]*ice.Command{
-		SERVER: {Name: "server port path auto start build download", Help: "服务器", Action: map[string]*ice.Action{
+		SERVER: {Name: "server port path auto", Help: "服务器", Action: map[string]*ice.Action{
 			web.DOWNLOAD: {Name: "download", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
 				m.Cmdy(code.INSTALL, web.DOWNLOAD, m.Conf(SERVER, kit.META_SOURCE))
 			}},
@@ -44,8 +45,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 				})
 				m.Cmdy(code.INSTALL, gdb.START, m.Conf(SERVER, kit.META_SOURCE), "bin/redis-server")
 
-				m.Sleep("1s")
-				m.Event(REDIS_SERVER_START, tcp.HOST, tcp.LOCALHOST, tcp.PORT, path.Base(pp))
+				m.Sleep("1s").Event(REDIS_SERVER_START, tcp.HOST, tcp.LOCALHOST, tcp.PORT, path.Base(pp))
 			}},
 			gdb.BENCH: {Name: "bench nconn=100 nreq=1000 cmdList=", Help: "压测", Hand: func(m *ice.Message, arg ...string) {
 				for _, k := range kit.Split(kit.Select(m.Option("cmdList"), "get,set")) {
@@ -68,12 +68,23 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			mdb.INPUTS: {Name: "inputs", Help: "补全", Hand: func(m *ice.Message, arg ...string) {
 				switch arg[0] {
 				case tcp.PORT:
-					m.Cmdy(SERVER).Appendv(ice.MSG_APPEND, tcp.PORT, kit.MDB_STATUS, kit.MDB_TIME)
+					m.Cmdy(SERVER).Appendv(ice.MSG_APPEND, kit.Split("port,status,time"))
 				}
 			}},
+			web.UPLOAD: {Name: "upload", Help: "上传", Hand: func(m *ice.Message, arg ...string) {
+				m.Upload(path.Join(m.Conf(cli.DAEMON, kit.META_PATH), m.Option(tcp.PORT), m.Option(kit.MDB_PATH)))
+			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-			m.Cmdy(code.INSTALL, path.Base(m.Conf(SERVER, kit.META_SOURCE)), arg)
-			if len(arg) == 0 {
+			switch len(arg) {
+			case 0:
+				m.Action(kit.Split("start,build,download")...)
+			case 1:
+				m.Action(kit.Split("upload,bench")...)
+			case 2:
+				m.Action(kit.Split("upload")...)
+			}
+
+			if m.Cmdy(code.INSTALL, path.Base(m.Conf(SERVER, kit.META_SOURCE)), arg); len(arg) == 0 {
 				m.PushAction(gdb.BENCH)
 			}
 		}},
