@@ -8,9 +8,8 @@ import (
 	"github.com/shylinux/icebergs/base/cli"
 	"github.com/shylinux/icebergs/base/mdb"
 	"github.com/shylinux/icebergs/base/tcp"
-	kit "github.com/shylinux/toolkits"
-
 	"github.com/shylinux/redis-story/src/server"
+	kit "github.com/shylinux/toolkits"
 )
 
 const (
@@ -24,16 +23,14 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 	},
 	Commands: map[string]*ice.Command{
 		ice.CTX_INIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-			m.Load()
 			m.Watch(server.REDIS_SERVER_START, m.Prefix(CLIENT))
 		}},
 		ice.CTX_EXIT: {Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-			m.Save()
 		}},
 
 		CLIENT: {Name: "client hash 执行:button 返回 create cmd:textarea", Help: "客户端", Action: map[string]*ice.Action{
-			server.REDIS_SERVER_START: {Name: "redis_server_start", Help: "服务", Hand: func(m *ice.Message, arg ...string) {
-				m.Cmdy(CLIENT, mdb.CREATE, tcp.HOST, m.Option(tcp.HOST), tcp.PORT, m.Option(tcp.PORT))
+			server.REDIS_SERVER_START: {Name: "redis_server_start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
+				m.Cmdy(mdb.INSERT, m.Prefix(CLIENT), "", mdb.HASH, arg)
 			}},
 			mdb.CREATE: {Name: "create host=localhost@key port=10000@key", Help: "连接", Hand: func(m *ice.Message, arg ...string) {
 				m.Cmdy(mdb.INSERT, m.Prefix(CLIENT), "", mdb.HASH, arg)
@@ -54,14 +51,15 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 				}
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
-			if len(arg) == 0 || arg[0] == "" {
-				m.Option(mdb.FIELDS, "time,hash,host,port")
+			if len(arg) == 0 || arg[0] == "" { // 连接列表
+				m.Fields(!(len(arg) > 0 && arg[0] != ""), "time,hash,host,port")
 				m.Cmdy(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH)
 				m.PushAction(mdb.REMOVE)
 				return
 			}
 
 			m.Cmd(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH, kit.MDB_HASH, arg[0], func(fields []string, value map[string]interface{}) {
+				// 连接池
 				var rp *RedisPool
 				switch val := value[REDIS_POOL].(type) {
 				case *RedisPool:
@@ -74,6 +72,7 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 				redis := rp.Get()
 				defer rp.Put(redis)
 
+				// 命令行
 				for _, line := range kit.Split(strings.Join(arg[1:], " "), "\n", "\n", "\n") {
 					m.Push(kit.MDB_TIME, kit.Format(time.Now()))
 					m.Push(cli.CMD, line)

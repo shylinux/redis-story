@@ -33,17 +33,10 @@ type Stat struct {
 	AVG  time.Duration
 }
 
-func _SET(i int64) []interface{} {
-	return []interface{}{fmt.Sprintf("hi%d", i), "hello"}
-}
-func _GET(i int64) []interface{} {
-	return []interface{}{fmt.Sprintf("hi%d", i)}
-}
+func _GET(i int64) []interface{} { return []interface{}{fmt.Sprintf("hi%d", i)} }
+func _SET(i int64) []interface{} { return []interface{}{fmt.Sprintf("hi%d", i), "hello"} }
 
-var trans = map[string]func(i int64) []interface{}{
-	"GET": _GET,
-	"SET": _SET,
-}
+var trans = map[string]func(i int64) []interface{}{"GET": _GET, "SET": _SET}
 
 func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd string, arg []interface{}, res interface{})) (*Stat, error) {
 	// 请求统计

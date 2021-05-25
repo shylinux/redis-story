@@ -1,15 +1,14 @@
 package client
 
 import (
-	"strings"
-	"sync"
-
-	kit "github.com/shylinux/toolkits"
-
 	"bufio"
 	"errors"
 	"fmt"
 	"net"
+	"strings"
+	"sync"
+
+	kit "github.com/shylinux/toolkits"
 )
 
 type redis struct {
