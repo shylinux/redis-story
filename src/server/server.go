@@ -6,7 +6,6 @@ import (
 
 	ice "github.com/shylinux/icebergs"
 	"github.com/shylinux/icebergs/base/cli"
-	"github.com/shylinux/icebergs/base/gdb"
 	"github.com/shylinux/icebergs/base/tcp"
 	"github.com/shylinux/icebergs/base/web"
 	"github.com/shylinux/icebergs/core/code"
@@ -39,17 +38,17 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			web.DOWNLOAD: {Name: "download", Help: "下载", Hand: func(m *ice.Message, arg ...string) {
 				m.Cmdy(code.INSTALL, web.DOWNLOAD, m.Conf(SERVER, kit.META_SOURCE))
 			}},
-			gdb.BUILD: {Name: "build", Help: "构建", Hand: func(m *ice.Message, arg ...string) {
+			cli.BUILD: {Name: "build", Help: "构建", Hand: func(m *ice.Message, arg ...string) {
 				m.Optionv(code.PREPARE, func(p string) {})
-				m.Cmdy(code.INSTALL, gdb.BUILD, m.Conf(SERVER, kit.META_SOURCE))
+				m.Cmdy(code.INSTALL, cli.BUILD, m.Conf(SERVER, kit.META_SOURCE))
 			}},
-			gdb.START: {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
+			cli.START: {Name: "start", Help: "启动", Hand: func(m *ice.Message, arg ...string) {
 				m.Optionv(code.PREPARE, func(p string) []string { return []string{"--port", path.Base(p)} })
-				m.Cmdy(code.INSTALL, gdb.START, m.Conf(SERVER, kit.META_SOURCE), "bin/redis-server")
+				m.Cmdy(code.INSTALL, cli.START, m.Conf(SERVER, kit.META_SOURCE), "bin/redis-server")
 
 				m.Sleep("1s").Event(REDIS_SERVER_START, tcp.HOST, tcp.LOCALHOST, tcp.PORT, path.Base(m.Option(cli.CMD_DIR)))
 			}},
-			gdb.BENCH: {Name: "bench nconn=100 nreq=1000 cmdList=", Help: "压测", Hand: func(m *ice.Message, arg ...string) {
+			cli.BENCH: {Name: "bench nconn=100 nreq=1000 cmdList=", Help: "压测", Hand: func(m *ice.Message, arg ...string) {
 				for _, k := range kit.Split(kit.Select(m.Option("cmdList"), "get,set")) {
 					begin := time.Now()
 					if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ":" + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []interface{}, res interface{}) {
@@ -69,7 +68,7 @@ var Index = &ice.Context{Name: REDIS, Help: "redis",
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			if m.Cmdy(code.INSTALL, path.Base(m.Conf(SERVER, kit.META_SOURCE)), arg); len(arg) == 0 {
-				m.PushAction(gdb.BENCH)
+				m.PushAction(cli.BENCH)
 			}
 		}},
 	},
