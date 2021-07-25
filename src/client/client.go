@@ -52,7 +52,7 @@ var Index = &ice.Context{Name: CLIENT, Help: "客户端",
 			}},
 		}, Hand: func(m *ice.Message, c *ice.Context, cmd string, arg ...string) {
 			if len(arg) == 0 || arg[0] == "" { // 连接列表
-				m.Fields(!(len(arg) > 0 && arg[0] != ""), "time,hash,host,port")
+				m.Fields(len(kit.Slice(arg, 0, 1)), "time,hash,host,port")
 				m.Cmdy(mdb.SELECT, m.Prefix(CLIENT), "", mdb.HASH)
 				m.PushAction(mdb.REMOVE)
 				return
