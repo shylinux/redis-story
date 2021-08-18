@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	kit "github.com/shylinux/toolkits"
+	kit "shylinux.com/x/toolkits"
 )
 
 type redis struct {

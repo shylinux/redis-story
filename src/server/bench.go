@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	log "github.com/shylinux/toolkits/logs"
-	"github.com/shylinux/toolkits/task"
+	log "shylinux.com/x/toolkits/logs"
+	"shylinux.com/x/toolkits/task"
 )
 
 type Stat struct {

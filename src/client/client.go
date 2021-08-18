@@ -4,12 +4,12 @@ import (
 	"strings"
 	"time"
 
-	ice "github.com/shylinux/icebergs"
-	"github.com/shylinux/icebergs/base/cli"
-	"github.com/shylinux/icebergs/base/mdb"
-	"github.com/shylinux/icebergs/base/tcp"
-	"github.com/shylinux/redis-story/src/server"
-	kit "github.com/shylinux/toolkits"
+	ice "shylinux.com/x/icebergs"
+	"shylinux.com/x/icebergs/base/cli"
+	"shylinux.com/x/icebergs/base/mdb"
+	"shylinux.com/x/icebergs/base/tcp"
+	"shylinux.com/x/redis-story/src/server"
+	kit "shylinux.com/x/toolkits"
 )
 
 const (
