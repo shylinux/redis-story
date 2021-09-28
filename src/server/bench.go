@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
-	log "shylinux.com/x/toolkits/logs"
+	"shylinux.com/x/redis-story/src/client"
+	kit "shylinux.com/x/toolkits"
 	"shylinux.com/x/toolkits/task"
 )
 
@@ -53,7 +53,8 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 	}()
 
 	// 连接池
-	rp := redis.NewPool(func() (redis.Conn, error) { return redis.Dial("tcp", hosts[0]) }, 10)
+	rp := client.NewRedisPool(hosts[0])
+	// rp := redis.NewPool(func() (redis.Conn, error) { return redis.Dial("tcp", hosts[0]) }, 10)
 
 	// 协程池
 	list := []interface{}{}
@@ -71,12 +72,12 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 		}()
 
 		conn := rp.Get()
-		defer conn.Close()
+		defer rp.Put(conn)
+		// defer conn.Close()
 
 		cmd := strings.ToUpper(cmds[0])
 		method := trans[cmd]
 		if method == nil {
-			log.Warn("method %v not found", cmd)
 			return errors.New("not found")
 		}
 
@@ -93,7 +94,8 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 				}()
 
 				arg := method(i)
-				if reply, err := conn.Do(cmd, arg...); err != nil {
+				if reply, err := conn.Do(cmd, kit.Simple(arg)...); err != nil {
+					// if reply, err := conn.Do(cmd, arg...); err != nil {
 					// 请求失败
 					nerr++
 				} else {

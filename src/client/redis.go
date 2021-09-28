@@ -16,10 +16,11 @@ type redis struct {
 	net.Conn
 }
 
-func (r *redis) Do(arg ...string) (interface{}, error) {
-	if len(arg) > 1 {
-		fmt.Fprintf(r.Conn, "*%d\r\n", len(arg))
+func (r *redis) Do(cmd string, arg ...string) (interface{}, error) {
+	if len(arg) > 0 {
+		fmt.Fprintf(r.Conn, "*%d\r\n", len(arg)+1)
 	}
+	fmt.Fprintf(r.Conn, "$%d\r\n%s\r\n", len(cmd), cmd)
 	for _, v := range arg {
 		fmt.Fprintf(r.Conn, "$%d\r\n%s\r\n", len(v), v)
 	}
@@ -29,6 +30,7 @@ func (r *redis) Do(arg ...string) (interface{}, error) {
 	if len(line) == 0 {
 		return nil, nil
 	}
+
 	switch line[0] {
 	case '-':
 		return nil, errors.New(line[1:])

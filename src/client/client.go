@@ -18,6 +18,9 @@ const (
 type client struct {
 	ice.Hash
 
+	short string `data:""`
+	field string `data:"time,hash,host,port"`
+
 	create string `name:"create host=localhost@key port=10000@key" help:"连接"`
 	list   string `name:"list hash run:button back create cmd:textarea" help:"客户端"`
 }
@@ -27,15 +30,13 @@ func (c client) Inputs(m *ice.Message, arg ...string) {
 	case tcp.PORT:
 		m.Cmdy(tcp.SERVER)
 	case mdb.HASH:
-		m.Option(mdb.FIELDS, "hash,time,host,port")
-		m.Cmdy(mdb.SELECT, m.Prefix(tcp.CLIENT), "", mdb.HASH)
+		c.Hash.List(m)
 	}
 }
 func (c client) List(m *ice.Message, arg ...string) {
 	if len(arg) == 0 || arg[0] == "" { // 连接列表
-		m.Fields(len(kit.Slice(arg, 0, 1)), "time,hash,host,port")
-		m.Cmdy(mdb.SELECT, m.Prefix(tcp.CLIENT), "", mdb.HASH)
-		m.PushAction(mdb.REMOVE)
+		defer m.PushAction(mdb.REMOVE)
+		c.Hash.List(m)
 		return
 	}
 
@@ -54,10 +55,11 @@ func (c client) List(m *ice.Message, arg ...string) {
 		defer rp.Put(redis)
 
 		// 命令行
-		for _, line := range kit.Split(strings.Join(arg[1:], " "), "\n", "\n", "\n") {
+		for _, line := range strings.Split(strings.Join(arg[1:], " "), "\n") {
 			m.Push(kit.MDB_TIME, kit.Format(time.Now()))
 			m.Push(cli.CMD, line)
-			if res, err := redis.Do(kit.Split(line)...); err == nil {
+			cmds := kit.Split(line)
+			if res, err := redis.Do(cmds[0], cmds[1:]...); err == nil {
 				m.Push(cli.ERR, "")
 				m.Push(cli.RES, res)
 				m.Echo("%v", res)

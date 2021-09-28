@@ -1,8 +1,13 @@
 package kafka
 
 import (
+	"path"
+
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/cli"
+	"shylinux.com/x/icebergs/base/tcp"
+	"shylinux.com/x/icebergs/core/code"
+	kit "shylinux.com/x/toolkits"
 )
 
 type client struct {
@@ -10,7 +15,7 @@ type client struct {
 }
 
 func (c client) List(m *ice.Message, arg ...string) {
-	_dir(m)
+	m.Option(cli.CMD_DIR, path.Join(m.Conf(code.INSTALL, kit.META_PATH), kit.TrimExt(m.Conf(tcp.SERVER, kit.Keym(cli.LINUX)))))
 	m.Cmdy(cli.SYSTEM, "bin/kafka-topics.sh", "--list", "--zookeeper", "localhost:2181")
 }
 

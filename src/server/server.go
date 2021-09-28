@@ -6,7 +6,6 @@ import (
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/cli"
-	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/tcp"
 	"shylinux.com/x/icebergs/base/web"
 	"shylinux.com/x/icebergs/core/code"
@@ -20,7 +19,7 @@ type server struct {
 	download string `name:"download" help:"下载"`
 	build    string `name:"build" help:"构建"`
 	start    string `name:"start" help:"启动"`
-	bench    string `name:"bench port= nconn=100 nreq=1000 cmdList=" help:"压测"`
+	bench    string `name:"bench port nconn=100 nreq=1000 cmdList" help:"压测"`
 	list     string `name:"list port path auto bench start build download" help:"服务器"`
 }
 
@@ -28,9 +27,6 @@ func (s server) Inputs(m *ice.Message, arg ...string) {
 	switch arg[0] {
 	case tcp.PORT:
 		m.Cmdy(tcp.SERVER)
-	case mdb.HASH:
-		m.Option(mdb.FIELDS, "hash,time,host,port")
-		m.Cmdy(mdb.SELECT, m.Prefix(tcp.CLIENT), "", mdb.HASH)
 	}
 }
 func (s server) Download(m *ice.Message, arg ...string) {
@@ -43,7 +39,6 @@ func (s server) Build(m *ice.Message, arg ...string) {
 func (s server) Start(m *ice.Message, arg ...string) {
 	m.Optionv(code.PREPARE, func(p string) []string { return []string{"--port", path.Base(p)} })
 	m.Cmdy(code.INSTALL, cli.START, m.Conf(tcp.SERVER, kit.META_SOURCE), "bin/redis-server")
-
 	// m.Sleep("1s").Event(REDIS_SERVER_START, tcp.HOST, tcp.LOCALHOST, tcp.PORT, path.Base(m.Option(cli.CMD_DIR)))
 }
 func (s server) Bench(m *ice.Message, arg ...string) {

@@ -23,15 +23,13 @@ type server struct {
 }
 
 func (s server) Download(m *ice.Message, arg ...string) {
-	_dir(m)
 	m.Cmdy(code.INSTALL, web.DOWNLOAD, m.Conf(tcp.SERVER, kit.Keym(cli.SOURCE)))
 }
 func (s server) Install(m *ice.Message, arg ...string) {
-	_dir(m)
 	m.Cmdy(code.INSTALL, web.DOWNLOAD, m.Conf(tcp.SERVER, kit.Keym(cli.LINUX)))
 }
 func (s server) Start(m *ice.Message, arg ...string) {
-	_dir(m)
+	m.Option(cli.CMD_DIR, path.Join(m.Conf(code.INSTALL, kit.META_PATH), kit.TrimExt(m.Conf(tcp.SERVER, kit.Keym(cli.LINUX)))))
 	m.Cmdy(cli.DAEMON, "bin/zookeeper-server-start.sh", "config/zookeeper.properties")
 	m.Sleep("1s")
 	m.Cmdy(cli.DAEMON, "bin/kafka-server-start.sh", "config/server.properties")
@@ -46,7 +44,3 @@ func (s server) List(m *ice.Message, arg ...string) {
 }
 
 func init() { ice.Cmd("web.code.kafka.server", server{}) }
-
-func _dir(m *ice.Message) {
-	m.Option(cli.CMD_DIR, path.Join(m.Conf(code.INSTALL, kit.META_PATH), kit.TrimExt(m.Conf(tcp.SERVER, kit.Keym(cli.LINUX)))))
-}
