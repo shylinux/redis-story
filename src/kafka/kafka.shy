@@ -1,15 +1,17 @@
-chapter "kafka"
+title "kafka"
 refer `
 官网 https://kafka.apache.org/
 源码 https://github.com/apache/kafka
 文档 https://kafka.apache.org/documentation/
 入门 https://www.cnblogs.com/along21/p/10278100.html
 `
+chapter "服务器"
+field "服务器" web.code.kafka.server
 
 section "下载安装"
 spark shell `
-wget https://mirror-hk.koddos.net/apache/kafka/2.8.0/kafka_2.12-2.8.0.tgz
-tar xvf kafka_2.12-2.8.0.tgz && cd kafka_2.12-2.8.0
+wget http://mirrors.tencent.com/apache/kafka/2.8.1/kafka_2.12-2.8.1.tgz
+tar xvf kafka_2.12-2.8.1.tgz && cd kafka_2.12-2.8.1
 `
 
 section "启动服务"
@@ -29,3 +31,6 @@ spark shell `
 bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic traffic_test --from-beginning
 bin/kafka-console-producer.sh --broker-list localhost:9092 --topic traffic_test
 `
+
+chapter "客户端"
+field "客户端" web.code.kafka.client
