@@ -28,19 +28,19 @@ type client struct {
 func (c client) Inputs(m *ice.Message, arg ...string) {
 	switch arg[0] {
 	case tcp.PORT:
-		m.Cmdy(tcp.SERVER)
+		m.Cmdy(tcp.SERVER).Append("append", "port", "status", "time")
 	case mdb.HASH:
 		c.Hash.List(m)
 	}
 }
 func (c client) List(m *ice.Message, arg ...string) {
 	if len(arg) == 0 || arg[0] == "" { // 连接列表
-		defer m.PushAction(mdb.REMOVE)
+		defer m.PushAction(c.Hash.Remove)
 		c.Hash.List(m)
 		return
 	}
 
-	m.Cmd(mdb.SELECT, m.Prefix(tcp.CLIENT), "", mdb.HASH, kit.MDB_HASH, arg[0], func(fields []string, value map[string]interface{}) {
+	m.Cmd(mdb.SELECT, m.PrefixKey(), "", mdb.HASH, kit.MDB_HASH, arg[0], func(fields []string, value map[string]interface{}) {
 		// 连接池
 		var rp *RedisPool
 		switch val := value[REDIS_POOL].(type) {
