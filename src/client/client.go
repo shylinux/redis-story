@@ -21,7 +21,7 @@ type client struct {
 	short string `data:""`
 	field string `data:"time,hash,host,port"`
 
-	create string `name:"create host=localhost@key port=10000@key" help:"连接"`
+	create string `name:"create host=localhost@key port=10001@key" help:"连接"`
 	list   string `name:"list hash run:button back create cmd:textarea" help:"客户端"`
 }
 
