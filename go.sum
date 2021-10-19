@@ -2,8 +2,8 @@ github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0U
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e h1:MRM5ITcdelLK2j1vwZ3Je0FKVCfqOLp5zO6trqMLYs0=
 github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e/go.mod h1:XV66xRDqSt+GTGFMVlhk3ULuV0y9ZmzeVGR4mloJI3M=
-shylinux.com/x/ice v0.2.9 h1:1g7aPK0pPgcHSvlXnC517q1osykf72Qb4Cnq6C+rtCg=
-shylinux.com/x/ice v0.2.9/go.mod h1:Be62D1BXpru/bjdgyZ4RrYMyhH7NLqLowCLfjoK+khA=
+shylinux.com/x/ice v0.3.0 h1:UVT2yk1u9pfnK7wUxqK/OxThuIPAijOMl0SUC4a/lT0=
+shylinux.com/x/ice v0.3.0/go.mod h1:Be62D1BXpru/bjdgyZ4RrYMyhH7NLqLowCLfjoK+khA=
 shylinux.com/x/icebergs v0.5.8 h1:vpGkEPVizrUpVmiqDYfrxvjvzzrTtrEbQB2h0ufJLqM=
 shylinux.com/x/icebergs v0.5.8/go.mod h1:qDYm2Hr8CrzQM5lOUbU4+BYXATENxRcBfrLYVAR8/oQ=
 shylinux.com/x/toolkits v0.3.6 h1:vScxphySLIULkRps0i22yMW7b+sd5MbCBaZRfUmzTu0=
