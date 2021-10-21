@@ -35,7 +35,7 @@ func (s server) Start(m *ice.Message, arg ...string) {
 func (s server) List(m *ice.Message, arg ...string) {
 	m.OptionFields("time,status,pid,cmd,dir")
 	m.Cmd(cli.DAEMON).Table(func(index int, value map[string]string, head []string) {
-		if strings.Contains(value[cli.CMD], "bin/kafka") || strings.Contains(value[cli.CMD], "bin/zookeeper") {
+		if strings.Contains(value["cmd"], "bin/kafka") || strings.Contains(value["cmd"], "bin/zookeeper") {
 			m.Push("", value, head)
 		}
 	})

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"shylinux.com/x/ice"
-	"shylinux.com/x/icebergs/base/cli"
 	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
@@ -57,15 +56,15 @@ func (c client) List(m *ice.Message, arg ...string) {
 		// 命令行
 		for _, line := range strings.Split(strings.Join(arg[1:], " "), "\n") {
 			m.Push(kit.MDB_TIME, kit.Format(time.Now()))
-			m.Push(cli.CMD, line)
+			m.Push("cmd", line)
 			cmds := kit.Split(line)
 			if res, err := redis.Do(cmds[0], cmds[1:]...); err == nil {
-				m.Push(cli.ERR, "")
-				m.Push(cli.RES, res)
+				m.Push("err", "")
+				m.Push("res", res)
 				m.Echo("%v", res)
 			} else {
-				m.Push(cli.ERR, err)
-				m.Push(cli.RES, "")
+				m.Push("err", err)
+				m.Push("res", "")
 			}
 		}
 	})
