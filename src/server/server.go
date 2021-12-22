@@ -21,8 +21,11 @@ type server struct {
 func (s server) Inputs(m *ice.Message, arg ...string) {
 	switch arg[0] {
 	case tcp.PORT:
-		s.List(m)
-		m.Append("append", "port", "status", "time")
+		if s.List(m); m.Length() > 0 {
+			m.Cut("port,status,time")
+		} else {
+			m.Cmdy(tcp.PORT)
+		}
 	}
 }
 func (s server) Download(m *ice.Message, arg ...string) {
