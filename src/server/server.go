@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"shylinux.com/x/ice"
-	"shylinux.com/x/icebergs/base/cli"
+	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
 )
@@ -29,15 +29,15 @@ func (s server) Inputs(m *ice.Message, arg ...string) {
 	}
 }
 func (s server) Download(m *ice.Message, arg ...string) {
-	s.Code.Download(m, m.Config(cli.SOURCE), arg...)
+	s.Code.Download(m, m.Config(nfs.SOURCE), arg...)
 }
 func (s server) Build(m *ice.Message, arg ...string) {
 	s.Code.Prepare(m, func(p string) {})
-	s.Code.Build(m, m.Config(cli.SOURCE), arg...)
+	s.Code.Build(m, m.Config(nfs.SOURCE), arg...)
 }
 func (s server) Start(m *ice.Message, arg ...string) {
 	s.Code.Prepare(m, func(p string) []string { return []string{"--port", path.Base(p)} })
-	s.Code.Start(m, m.Config(cli.SOURCE), "bin/redis-server")
+	s.Code.Start(m, m.Config(nfs.SOURCE), "bin/redis-server")
 }
 func (s server) Bench(m *ice.Message, arg ...string) {
 	for _, k := range kit.Split(kit.Select(m.Option("cmdList"), "get,set")) {
@@ -58,7 +58,7 @@ func (s server) Bench(m *ice.Message, arg ...string) {
 	m.ProcessInner()
 }
 func (s server) List(m *ice.Message, arg ...string) {
-	if s.Code.List(m, m.Config(cli.SOURCE), arg...); len(arg) == 0 {
+	if s.Code.List(m, m.Config(nfs.SOURCE), arg...); len(arg) == 0 {
 		m.PushAction(s.Bench)
 	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/cli"
+	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/core/code"
 	kit "shylinux.com/x/toolkits"
 )
@@ -21,7 +22,7 @@ type server struct {
 }
 
 func (s server) Download(m *ice.Message, arg ...string) {
-	s.Code.Download(m, m.Config(cli.SOURCE), arg...)
+	s.Code.Download(m, m.Config(nfs.SOURCE), arg...)
 }
 func (s server) Install(m *ice.Message, arg ...string) {
 	s.Code.Download(m, m.Config(cli.LINUX), arg...)
