@@ -28,7 +28,7 @@ func (s server) Install(m *ice.Message, arg ...string) {
 	s.Code.Download(m, m.Config(cli.LINUX), arg...)
 }
 func (s server) Start(m *ice.Message, arg ...string) {
-	p := path.Join(m.Conf(code.INSTALL, kit.META_PATH), kit.TrimExt(m.Config(cli.LINUX)))
+	p := path.Join(m.Conf(code.INSTALL, kit.Keym(nfs.PATH)), kit.TrimExt(m.Config(cli.LINUX)))
 	s.Code.Daemon(m, p, "bin/zookeeper-server-start.sh", "config/zookeeper.properties")
 	m.Sleep("3s")
 	s.Code.Daemon(m, p, "bin/kafka-server-start.sh", "config/server.properties")
