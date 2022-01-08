@@ -30,16 +30,18 @@ func (s server) Install(m *ice.Message, arg ...string) {
 func (s server) Start(m *ice.Message, arg ...string) {
 	p := path.Join(m.Conf(code.INSTALL, kit.Keym(nfs.PATH)), kit.TrimExt(m.Config(cli.LINUX)))
 	s.Code.Daemon(m, p, "bin/zookeeper-server-start.sh", "config/zookeeper.properties")
-	m.Sleep("3s")
+	m.Sleep3s()
 	s.Code.Daemon(m, p, "bin/kafka-server-start.sh", "config/server.properties")
 }
 func (s server) List(m *ice.Message, arg ...string) {
 	m.OptionFields("time,status,pid,cmd,dir")
+	m.Debug("what %v", 123)
 	m.Cmd(cli.DAEMON).Table(func(index int, value map[string]string, head []string) {
-		if strings.Contains(value["cmd"], "bin/kafka") || strings.Contains(value["cmd"], "bin/zookeeper") {
+		m.Debug("what %v", 123)
+		if strings.Contains(value[ice.CMD], "bin/kafka") || strings.Contains(value[ice.CMD], "bin/zookeeper") {
 			m.Push("", value, head)
 		}
 	})
 }
 
-func init() { ice.Cmd("web.code.kafka.server", server{}) }
+func init() { ice.CodeCtxCmd(server{}) }

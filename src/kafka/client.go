@@ -22,4 +22,4 @@ func (c client) List(m *ice.Message, arg ...string) {
 	c.Code.System(m, p, "bin/kafka-topics.sh", "--list", "--zookeeper", "localhost:2181")
 }
 
-func init() { ice.Cmd("web.code.kafka.client", client{}) }
+func init() { ice.CodeCtxCmd(client{}) }

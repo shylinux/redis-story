@@ -1,6 +1,6 @@
 chapter "server"
 field "服务器" web.code.redis.server
-field "源代码" web.code.inner args `usr/install/redis-5.0.8/src dict.h 82`
+field "源代码" web.code.inner args `usr/install/redis-5.0.8/src/ dict.h 82`
 
 section "编译安装"
 spark shell `
@@ -9,7 +9,7 @@ yum install -y wget make gcc
 wget http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz
 tar xvf redis-5.0.8.tar.gz && cd redis-5.0.8
 
-make -j8 && make PREFIX=../_install install
+make -j8 && make PREFIX=$PWD/_install install
 `
 
 section "启动服务"

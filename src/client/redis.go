@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"shylinux.com/x/ice"
 	kit "shylinux.com/x/toolkits"
 )
 
@@ -43,7 +44,7 @@ func (r *redis) Do(cmd string, arg ...string) (interface{}, error) {
 			list = append(list, r.bio.Text())
 			rest -= len(r.bio.Text()) + 1
 		}
-		return strings.Join(list, "\n"), nil
+		return strings.Join(list, ice.NL), nil
 	case ':':
 		return kit.Int(line[1:]), nil
 	case '*':

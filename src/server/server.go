@@ -42,7 +42,7 @@ func (s server) Start(m *ice.Message, arg ...string) {
 func (s server) Bench(m *ice.Message, arg ...string) {
 	for _, k := range kit.Split(kit.Select(m.Option("cmdList"), "get,set")) {
 		begin := time.Now()
-		if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ":" + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []interface{}, res interface{}) {
+		if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ice.FS + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []interface{}, res interface{}) {
 			// 检查结果
 
 		}); m.Assert(e) {
@@ -62,4 +62,4 @@ func (s server) List(m *ice.Message, arg ...string) {
 		m.PushAction(s.Bench)
 	}
 }
-func init() { ice.Cmd("web.code.redis.server", server{}) }
+func init() { ice.CodeModCmd(server{}) }
