@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"shylinux.com/x/ice"
+	"shylinux.com/x/icebergs/base/aaa"
 	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
@@ -14,7 +15,7 @@ type server struct {
 	ice.Code
 
 	source string `data:"http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz"`
-	start  string `name:"start port" help:"启动"`
+	start  string `name:"start port password" help:"启动"`
 	bench  string `name:"bench port nconn=100 nreq=1000 cmdList" help:"压测"`
 }
 
@@ -36,7 +37,9 @@ func (s server) Build(m *ice.Message, arg ...string) {
 	s.Code.Build(m, m.Config(nfs.SOURCE), arg...)
 }
 func (s server) Start(m *ice.Message, arg ...string) {
-	s.Code.Prepare(m, func(p string) []string { return []string{"--port", path.Base(p)} })
+	s.Code.Prepare(m, func(p string) []string {
+		return []string{"--port", path.Base(p), "--requirepass", m.Option(aaa.PASSWORD)}
+	})
 	s.Code.Start(m, m.Config(nfs.SOURCE), "bin/redis-server")
 }
 func (s server) Bench(m *ice.Message, arg ...string) {

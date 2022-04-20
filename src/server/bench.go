@@ -53,7 +53,7 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 	}()
 
 	// 连接池
-	rp := client.NewRedisPool(hosts[0])
+	rp := client.NewRedisPool(hosts[0], "")
 	// rp := redis.NewPool(func() (redis.Conn, error) { return redis.Dial("tcp", hosts[0]) }, 10)
 
 	// 协程池
