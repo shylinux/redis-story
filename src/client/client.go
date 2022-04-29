@@ -22,9 +22,10 @@ type client struct {
 
 	del    string `name:"del" help:"删除"`
 	info   string `name:"info" help:"信息"`
-	keys   string `name:"keys" help:"列表"`
+	keys   string `name:"keys pattern" help:"列表"`
 	create string `name:"create name=biz host=localhost port=10001 password=12345678" help:"连接"`
-	list   string `name:"list name@key run:button back info keys create cmd:textarea" help:"客户端"`
+	prunes string `name:"prunes pattern" help:"清理"`
+	list   string `name:"list name@key run:button back info keys prunes create cmd:textarea" help:"缓存值"`
 }
 
 func (c client) Inputs(m *ice.Message, arg ...string) {
@@ -36,6 +37,19 @@ func (c client) Inputs(m *ice.Message, arg ...string) {
 	default:
 		c.Hash.Inputs(m, arg...)
 	}
+}
+func (c client) Prunes(m *ice.Message, arg ...string) {
+	m.OptionCB("client", func(redis *redis) {
+		res, err := redis.Do("keys", m.Option("pattern"))
+		m.Assert(err)
+		for _, k := range kit.Slice(kit.Simple(res), 0, 100) {
+			m.Push("key", k)
+			res, err := redis.Do("del", k)
+			m.Push("res", kit.Format(res))
+			m.Push("err", kit.Format(err))
+		}
+	})
+	c.List(m, m.Option(mdb.NAME), "keys")
 }
 func (c client) Del(m *ice.Message, arg ...string) {
 	c.List(m, m.Option("name"), "del", m.Option("key"))
@@ -63,7 +77,7 @@ func (c client) Info(m *ice.Message, arg ...string) {
 }
 func (c client) Keys(m *ice.Message, arg ...string) *ice.Message {
 	m.OptionCB("client", func(redis *redis) {
-		res, err := redis.Do("keys", "*")
+		res, err := redis.Do("keys", kit.Select("*", m.Option("pattern")))
 		m.Assert(err)
 		for _, k := range kit.Slice(kit.Simple(res), 0, 100) {
 			t := kit.Format(redis.Done("type", k))
@@ -94,7 +108,7 @@ func (c client) Keys(m *ice.Message, arg ...string) *ice.Message {
 		}
 		m.StatusTimeCount()
 	})
-	c.List(m, arg[0], "keys")
+	c.List(m, m.Option(mdb.NAME), "keys")
 	return m
 }
 func (c client) List(m *ice.Message, arg ...string) *ice.Message {
