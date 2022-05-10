@@ -25,7 +25,7 @@ type client struct {
 	keys   string `name:"keys pattern" help:"列表"`
 	create string `name:"create name=biz host=localhost port=10001 password=12345678" help:"连接"`
 	prunes string `name:"prunes pattern" help:"清理"`
-	list   string `name:"list name@key run:button back info keys prunes create cmd:textarea" help:"缓存值"`
+	list   string `name:"list name@key run info keys prunes create cmd:textarea" help:"缓存值"`
 }
 
 func (c client) Inputs(m *ice.Message, arg ...string) {
