@@ -1,10 +1,10 @@
 shylinux.com/x/go-qrcode v0.0.1 h1:/eOGqMj1qtgs9Ymd12zTUa1gcJZs9S92kj2lb0QzKsE=
 shylinux.com/x/go-qrcode v0.0.1/go.mod h1:KAbtU+KwiiABMZ/CJ0zh9PI2AX82Uf9rRYcQ4ODm4po=
-shylinux.com/x/ice v0.9.6 h1:IIZI5j/FtElaTW/vIacUYVl9RqNnuPyIZ9W6UE87NNM=
-shylinux.com/x/ice v0.9.6/go.mod h1:pf/idmC+/Oixkr1uM/9NFGL8saTBJi9lCUVK5yqj5dI=
-shylinux.com/x/icebergs v1.2.3 h1:pVNv7PHNAQSFYm12gA315bmB+AG/n6e/ruZQ6wZAiFM=
-shylinux.com/x/icebergs v1.2.3/go.mod h1:zCAydrOC+MFmbn5SzhgdL0dhzUALiTjeT0psU2QyQ8Y=
-shylinux.com/x/toolkits v0.5.9 h1:d2x4hNp9ariX66w8dsY8qFsPYtP0MYdOhh+exmqECDo=
-shylinux.com/x/toolkits v0.5.9/go.mod h1:8LbYHe7oxBIqb6s4MSOD+4d28QvPdvkyCVtwB/JW7AA=
+shylinux.com/x/ice v0.9.8 h1:SJCJZ5ZGgFEg8SXDwASDNEY/QLEeJLDwC42MDOIBi90=
+shylinux.com/x/ice v0.9.8/go.mod h1:bx0QwDuu5Uhe1W6fMWnJBiezmQAL0i/U3B5HJK6HzCU=
+shylinux.com/x/icebergs v1.2.5 h1:6Vzhgp6kTPRPaIstKH0vi2P3oznOy+CR1Ac7vGZxxVs=
+shylinux.com/x/icebergs v1.2.5/go.mod h1:4lRksPmw+2xtXe3NrAAs9hBI4R4/AbpppqTPR3HSD2c=
+shylinux.com/x/toolkits v0.6.0 h1:DqTQOj7CA6jc7x9kd9uxX0NGCHYo67V6NmOmINqP+Is=
+shylinux.com/x/toolkits v0.6.0/go.mod h1:8LbYHe7oxBIqb6s4MSOD+4d28QvPdvkyCVtwB/JW7AA=
 shylinux.com/x/websocket v0.0.1 h1:OBc21DxqsGlQ2+Pz76xqLyDNo1LV+PUUqfWi+1PZPDE=
 shylinux.com/x/websocket v0.0.1/go.mod h1:AaSpMToOxbMULKQytzczeHPuqb708vK1vrAzCxLo/XE=
