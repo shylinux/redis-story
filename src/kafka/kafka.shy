@@ -5,8 +5,6 @@ refer `
 文档 https://kafka.apache.org/documentation/
 入门 https://www.cnblogs.com/along21/p/10278100.html
 `
-chapter "服务器"
-field "服务器" web.code.kafka.server
 
 section "下载安装"
 spark shell `
@@ -22,15 +20,13 @@ bin/kafka-server-start.sh  config/server.properties
 
 section "创建主题"
 spark shell `
-bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic traffic_test
-bin/kafka-topics.sh --list --zookeeper localhost:2181
+bin/kafka-topics.sh --create --zookeeper localhost:20002 --replication-factor 1 --partitions 1 --topic TASK_AGENT
+bin/kafka-topics.sh --list --zookeeper localhost:20002
 `
 
 section "收发消息"
 spark shell `
-bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic traffic_test --from-beginning
-bin/kafka-console-producer.sh --broker-list localhost:9092 --topic traffic_test
+bin/kafka-console-consumer.sh --bootstrap-server localhost:10002 --topic TASK_AGENT --from-beginning
+bin/kafka-console-producer.sh --broker-list localhost:10002 --topic TASK_AGENT
 `
 
-chapter "客户端"
-field "客户端" web.code.kafka.client
