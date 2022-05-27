@@ -4,6 +4,7 @@ refer `
 源码 https://github.com/apache/kafka
 文档 https://kafka.apache.org/documentation/
 入门 https://www.cnblogs.com/along21/p/10278100.html
+接入 https://github.com/segmentio/kafka-go
 `
 
 section "下载安装"
