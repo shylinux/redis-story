@@ -1,11 +1,13 @@
 package kafka
 
 import (
+	"context"
+
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/mdb"
 	kit "shylinux.com/x/toolkits"
 
-	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
+	"github.com/segmentio/kafka-go"
 )
 
 const (
@@ -18,26 +20,24 @@ const (
 type client struct {
 	ice.Zone
 	short string `data:"cluster"`
-	field string `data:"time,id,topic,text"`
+	field string `data:"time,id,topic,keys,value"`
 
 	create string `name:"create cluster server topic group" help:"创建"`
-	send   string `name:"send cluster topic=TASK_AGENT text=hello" help:"发送"`
+	send   string `name:"send cluster topic=TASK_AGENT keys=hi value=hello" help:"发送"`
 	list   string `name:"list cluster@key id auto send" help:"消息队列"`
 }
 
 func (s client) Create(m *ice.Message, arg ...string) {
 	s.Zone.Create(m, m.OptionSimple(CLUSTER, SERVER, TOPIC, GROUP)...)
 
-	c, e := kafka.NewConsumer(&kafka.ConfigMap{"bootstrap.servers": m.Option(SERVER), "group.id": m.Option(GROUP)})
-	m.Assert(e)
-
 	cluster, topic := m.Option(CLUSTER), m.Option(TOPIC)
-	m.Assert(c.SubscribeTopics([]string{topic}, nil))
+	r := kafka.NewReader(kafka.ReaderConfig{Brokers: []string{m.Option(SERVER)}, Topic: topic})
+	r.SetOffset(-1)
 
 	m.Go(func() {
 		for {
-			if msg, err := c.ReadMessage(-1); !m.Warn(err, msg) {
-				s.Insert(m, CLUSTER, cluster, mdb.TIME, msg.Timestamp.Local().Format(ice.MOD_TIME), TOPIC, topic, mdb.TEXT, string(msg.Value))
+			if msg, err := r.ReadMessage(context.Background()); !m.Warn(err, msg) {
+				s.Insert(m, CLUSTER, cluster, mdb.TIME, msg.Time.Local().Format(ice.MOD_TIME), TOPIC, topic, "keys", string(msg.Key), mdb.VALUE, string(msg.Value))
 			}
 		}
 	})
@@ -46,15 +46,10 @@ func (s client) Create(m *ice.Message, arg ...string) {
 func (s client) Send(m *ice.Message, arg ...string) {
 	msg := m.Cmd(mdb.SELECT, m.PrefixKey(), "", mdb.HASH, m.OptionSimple(CLUSTER), kit.Dict(ice.MSG_FIELDS, "time,cluster,server,topic,group"))
 
-	p, e := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": msg.Append(SERVER)})
-	m.Assert(e)
-	defer p.Close()
-	defer p.Flush(100)
+	w := &kafka.Writer{Addr: kafka.TCP(msg.Append(SERVER)), Topic: m.Option(TOPIC)}
+	defer w.Close()
 
-	topic := m.Option(TOPIC)
-	m.Assert(p.Produce(&kafka.Message{Value: []byte(m.Option(mdb.TEXT)),
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-	}, nil))
+	m.Assert(w.WriteMessages(context.Background(), kafka.Message{Key: []byte(m.Option("keys")), Value: []byte(m.Option(mdb.VALUE))}))
 }
 
 func (s client) List(m *ice.Message, arg ...string) {
