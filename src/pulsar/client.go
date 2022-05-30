@@ -55,7 +55,7 @@ func (s client) Create(m *ice.Message, arg ...string) {
 }
 
 func (s client) Send(m *ice.Message, arg ...string) {
-	msg := m.Cmd(mdb.SELECT, m.PrefixKey(), "", mdb.HASH, m.OptionSimple(CLUSTER), kit.Dict(ice.MSG_FIELDS, kit.Keys(TOPIC, SERVER, TOKEN)))
+	msg := m.Cmd(mdb.SELECT, m.PrefixKey(), "", mdb.HASH, m.OptionSimple(CLUSTER), kit.Dict(ice.MSG_FIELDS, kit.Fields(TOPIC, SERVER, TOKEN)))
 
 	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: msg.Append(SERVER), Authentication: pulsar.NewAuthenticationToken(msg.Append(TOKEN))})
 	m.Assert(e)
