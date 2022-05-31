@@ -71,7 +71,9 @@ func (s client) List(m *ice.Message, arg ...string) {
 	if len(arg) == 0 {
 		m.OptionFields(CLUSTER, TOPIC, GROUP, SERVER, TOKEN)
 	}
-	s.Zone.List(m, arg...)
+	if s.Zone.List(m, arg...); m.FieldsIsDetail() {
+		m.Append(mdb.VALUE, kit.Formats(kit.UnMarshal(m.Append(mdb.VALUE))))
+	}
 }
 
 func init() { ice.CodeCtxCmd(client{}) }
