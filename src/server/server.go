@@ -6,41 +6,25 @@ import (
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/aaa"
-	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
 )
 
 type server struct {
 	ice.Code
-
 	source string `data:"http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz"`
-	start  string `name:"start port password" help:"启动"`
+	start  string `name:"start port=10001 password=root" help:"启动"`
 	bench  string `name:"bench port nconn=100 nreq=1000 cmdList" help:"压测"`
+	list   string `name:"list port path auto start build download" help:"缓存"`
 }
 
-func (s server) Inputs(m *ice.Message, arg ...string) {
-	switch arg[0] {
-	case tcp.PORT:
-		if s.List(m); m.Length() > 0 {
-			m.Cut("port,status,time")
-		} else {
-			m.Cmdy(tcp.PORT)
-		}
-	}
-}
-func (s server) Download(m *ice.Message, arg ...string) {
-	s.Code.Download(m, m.Config(nfs.SOURCE), arg...)
-}
 func (s server) Build(m *ice.Message, arg ...string) {
-	s.Code.Prepare(m, func(p string) {})
-	s.Code.Build(m, m.Config(nfs.SOURCE), arg...)
+	s.Code.Build(m, "", func(p string) {})
 }
 func (s server) Start(m *ice.Message, arg ...string) {
-	s.Code.Prepare(m, func(p string) []string {
+	s.Code.Start(m, "", "bin/redis-server", func(p string) []string {
 		return []string{"--port", path.Base(p), "--requirepass", m.Option(aaa.PASSWORD)}
 	})
-	s.Code.Start(m, m.Config(nfs.SOURCE), "bin/redis-server")
 }
 func (s server) Bench(m *ice.Message, arg ...string) {
 	for _, k := range kit.Split(kit.Select(m.Option("cmdList"), "get,set")) {
@@ -61,7 +45,7 @@ func (s server) Bench(m *ice.Message, arg ...string) {
 	m.ProcessInner()
 }
 func (s server) List(m *ice.Message, arg ...string) {
-	if s.Code.List(m, m.Config(nfs.SOURCE), arg...); len(arg) == 0 {
+	if s.Code.List(m, "", arg...); len(arg) == 0 || arg[0] == "" {
 		m.PushAction(s.Bench)
 	}
 }

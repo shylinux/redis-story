@@ -58,13 +58,15 @@ func (s client) Create(m *ice.Message, arg ...string) {
 func (s client) Send(m *ice.Message, arg ...string) {
 	msg := m.Cmd(mdb.SELECT, m.PrefixKey(), "", mdb.HASH, m.OptionSimple(CLUSTER), kit.Dict(ice.MSG_FIELDS, kit.Fields(TOPIC, SERVER, TOKEN)))
 
+	m.Debug("what %v", msg.FormatMeta())
 	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: msg.Append(SERVER), Authentication: pulsar.NewAuthenticationToken(msg.Append(TOKEN))})
 	m.Assert(e)
 
 	p, e := client.CreateProducer(pulsar.ProducerOptions{Topic: PREFIX + msg.Append(TOPIC)})
 	m.Assert(e)
 
-	_, e = p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE)), Properties: map[string]string{}})
+	msgid, e := p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE)), Properties: map[string]string{}})
+	m.Debug("what %#v", msgid)
 	m.Assert(e)
 }
 
