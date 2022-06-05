@@ -27,10 +27,10 @@ func (s server) zkport(port string) string {
 	return kit.Format(kit.Int(port) + 10000)
 }
 func (s server) Download(m *ice.Message, arg ...string) {
-	s.Code.Download(m, m.Config(nfs.SOURCE), arg...)
+	s.Code.Download(m, m.Config(nfs.SOURCE))
 }
 func (s server) Install(m *ice.Message, arg ...string) {
-	s.Code.Download(m, m.Config(cli.LINUX), arg...)
+	s.Code.Download(m, m.Config(cli.LINUX))
 }
 func (s server) Start(m *ice.Message, arg ...string) {
 	m.Option(code.INSTALL, ice.PT)
