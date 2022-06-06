@@ -40,7 +40,7 @@ func (s client) Create(m *ice.Message, arg ...string) {
 	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: m.Option(SERVER), Authentication: pulsar.NewAuthenticationToken(m.Option(TOKEN))})
 	m.Assert(e)
 
-	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PREFIX + m.Option(TOPIC), SubscriptionName: m.Option(GROUP), Type: pulsar.Shared})
+	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PREFIX + m.Option(TOPIC), SubscriptionName: m.Option(GROUP), Type: pulsar.Exclusive})
 	m.Assert(e)
 
 	cluster := m.Option(CLUSTER)
@@ -58,7 +58,6 @@ func (s client) Create(m *ice.Message, arg ...string) {
 func (s client) Send(m *ice.Message, arg ...string) {
 	msg := m.Cmd(mdb.SELECT, m.PrefixKey(), "", mdb.HASH, m.OptionSimple(CLUSTER), kit.Dict(ice.MSG_FIELDS, kit.Fields(TOPIC, SERVER, TOKEN)))
 
-	m.Debug("what %v", msg.FormatMeta())
 	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: msg.Append(SERVER), Authentication: pulsar.NewAuthenticationToken(msg.Append(TOKEN))})
 	m.Assert(e)
 
@@ -66,7 +65,6 @@ func (s client) Send(m *ice.Message, arg ...string) {
 	m.Assert(e)
 
 	msgid, e := p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE)), Properties: map[string]string{}})
-	m.Debug("what %#v", msgid)
 	m.Assert(e)
 }
 
