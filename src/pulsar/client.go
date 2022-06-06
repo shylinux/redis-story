@@ -65,6 +65,7 @@ func (s client) Send(m *ice.Message, arg ...string) {
 	m.Assert(e)
 
 	msgid, e := p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE)), Properties: map[string]string{}})
+	m.Push("msgid", msgid)
 	m.Assert(e)
 }
 
