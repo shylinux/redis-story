@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"shylinux.com/x/ice"
+	"shylinux.com/x/icebergs/base/cli"
 	"shylinux.com/x/icebergs/base/mdb"
+	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
 
 	"github.com/apache/pulsar-client-go/pulsar"
@@ -29,18 +31,18 @@ type client struct {
 	short string `data:"cluster"`
 	field string `data:"time,id,keys,value"`
 
-	create string `name:"create cluster topic group server token" help:"创建"`
+	create string `name:"create cluster topic server token" help:"创建"`
 	send   string `name:"send cluster keys=hi value:textarea=hello" help:"发送"`
 	list   string `name:"list cluster id auto send" help:"消息队列"`
 }
 
 func (s client) Create(m *ice.Message, arg ...string) {
-	s.Zone.Create(m, m.OptionSimple(CLUSTER, TOPIC, GROUP, SERVER, TOKEN)...)
+	s.Zone.Create(m, m.OptionSimple(CLUSTER, TOPIC, SERVER, TOKEN)...)
 
 	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: m.Option(SERVER), Authentication: pulsar.NewAuthenticationToken(m.Option(TOKEN))})
 	m.Assert(e)
 
-	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PREFIX + m.Option(TOPIC), SubscriptionName: m.Option(GROUP), Type: pulsar.Shared})
+	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PREFIX + m.Option(TOPIC), SubscriptionName: m.Cmdx(cli.RUNTIME, tcp.HOSTNAME), Type: pulsar.Shared})
 	m.Assert(e)
 
 	cluster := m.Option(CLUSTER)
