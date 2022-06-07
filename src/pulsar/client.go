@@ -40,7 +40,7 @@ func (s client) Create(m *ice.Message, arg ...string) {
 	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: m.Option(SERVER), Authentication: pulsar.NewAuthenticationToken(m.Option(TOKEN))})
 	m.Assert(e)
 
-	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PREFIX + m.Option(TOPIC), SubscriptionName: m.Option(GROUP), Type: pulsar.Exclusive})
+	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PREFIX + m.Option(TOPIC), SubscriptionName: m.Option(GROUP), Type: pulsar.Shared})
 	m.Assert(e)
 
 	cluster := m.Option(CLUSTER)
