@@ -39,44 +39,42 @@ func (c client) Inputs(m *ice.Message, arg ...string) {
 	}
 }
 func (c client) Prunes(m *ice.Message, arg ...string) {
-	m.OptionCB("client", func(redis *redis) {
+	m.OptionCB(tcp.CLIENT, func(redis *redis) {
 		res, err := redis.Do("keys", m.Option("pattern"))
 		m.Assert(err)
 		for _, k := range kit.Slice(kit.Simple(res), 0, 100) {
-			m.Push("key", k)
+			m.Push(mdb.KEY, k)
 			res, err := redis.Do("del", k)
-			m.Push("res", kit.Format(res))
-			m.Push("err", kit.Format(err))
+			m.Push(ice.RES, kit.Format(res))
+			m.Push(ice.ERR, kit.Format(err))
 		}
 	})
 	c.List(m, m.Option(mdb.NAME), "keys")
 }
 func (c client) Del(m *ice.Message, arg ...string) {
-	c.List(m, m.Option("name"), "del", m.Option("key"))
+	c.List(m, m.Option(mdb.NAME), "del", m.Option("key"))
 }
 func (c client) Info(m *ice.Message, arg ...string) {
-	m.OptionCB("client", func(redis *redis) {
+	m.OptionCB(tcp.CLIENT, func(redis *redis) {
 		res, _ := redis.Do("info")
-		domain := ""
-		data := kit.Dict()
+		data, domain := kit.Dict(), ""
 		for _, line := range strings.Split(kit.Format(res), "\r\n") {
 			if strings.HasPrefix(line, "# ") {
 				domain = strings.TrimPrefix(line, "# ")
 				continue
 			}
-			ls := strings.SplitN(strings.TrimSpace(line), ":", 2)
+			ls := strings.SplitN(strings.TrimSpace(line), ice.DF, 2)
 			if len(ls) > 1 {
 				kit.Value(data, kit.Keys(domain, ls[0]), ls[1])
 			}
 		}
-		m.DisplayStoryJSON()
-		m.Echo("%v", kit.Formats(data))
+		m.PushDetail(data)
 		m.StatusTimeCount()
 	})
 	c.List(m, arg[0], "keys")
 }
 func (c client) Keys(m *ice.Message, arg ...string) *ice.Message {
-	m.OptionCB("client", func(redis *redis) {
+	m.OptionCB(tcp.CLIENT, func(redis *redis) {
 		res, err := redis.Do("keys", kit.Select("*", m.Option("pattern")))
 		m.Assert(err)
 		for _, k := range kit.Slice(kit.Simple(res), 0, 100) {
@@ -86,23 +84,23 @@ func (c client) Keys(m *ice.Message, arg ...string) *ice.Message {
 			m.Push("key", k)
 			switch t {
 			case "set":
-				m.Push("value", kit.Format(redis.Done("SMEMBERS", k)))
+				m.Push(mdb.VALUE, kit.Format(redis.Done("SMEMBERS", k)))
 			case "zset":
 				list := kit.Simple(redis.Done("ZRANGE", k, "0", "-1", "WITHSCORES"))
 				data := kit.Dict()
 				for i := 0; i < len(list)-1; i += 2 {
 					data[list[i]] = list[i+1]
 				}
-				m.Push("value", kit.Format(data))
+				m.Push(mdb.VALUE, kit.Format(data))
 			case "list":
-				m.Push("value", kit.Format(redis.Done("LRANGE", k, "0", "-1")))
+				m.Push(mdb.VALUE, kit.Format(redis.Done("LRANGE", k, "0", "-1")))
 			case "string":
-				m.Push("value", kit.Format(redis.Done("GET", k)))
+				m.Push(mdb.VALUE, kit.Format(redis.Done("GET", k)))
 			case "hash":
-				m.Push("value", kit.Formats(kit.Dict(redis.Done("HGETALL", k))))
+				m.Push(mdb.VALUE, kit.Formats(kit.Dict(redis.Done("HGETALL", k))))
 
 			default:
-				m.Push("value", "")
+				m.Push(mdb.VALUE, "")
 			}
 			m.PushAction(c.Del)
 		}
@@ -138,7 +136,7 @@ func (c client) List(m *ice.Message, arg ...string) *ice.Message {
 		r := rp.Get()
 		defer rp.Put(r)
 
-		if cb := m.OptionCB("client"); cb != nil {
+		if cb := m.OptionCB(tcp.CLIENT); cb != nil {
 			switch cb := cb.(type) {
 			case func(*redis):
 				cb(r)
@@ -152,7 +150,7 @@ func (c client) List(m *ice.Message, arg ...string) *ice.Message {
 			m.Push(ice.CMD, line)
 			cmds := kit.Split(line)
 			if res, err := r.Do(cmds[0], cmds[1:]...); err == nil {
-				if cb := m.OptionCB("client"); cb != nil {
+				if cb := m.OptionCB(tcp.CLIENT); cb != nil {
 					switch cb := cb.(type) {
 					case func(interface{}):
 						cb(res)
