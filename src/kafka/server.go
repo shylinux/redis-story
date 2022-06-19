@@ -4,10 +4,8 @@ import (
 	"path"
 
 	"shylinux.com/x/ice"
-	"shylinux.com/x/icebergs/base/cli"
 	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
-	"shylinux.com/x/icebergs/core/code"
 	kit "shylinux.com/x/toolkits"
 )
 
@@ -27,15 +25,8 @@ type server struct {
 func (s server) zkport(port string) string {
 	return kit.Format(kit.Int(port) + 10000)
 }
-func (s server) Download(m *ice.Message, arg ...string) {
-	s.Code.Download(m, m.Config(nfs.SOURCE))
-}
-func (s server) Install(m *ice.Message, arg ...string) {
-	s.Code.Download(m, m.Config(cli.LINUX))
-}
 func (s server) Start(m *ice.Message, arg ...string) {
-	m.Option(code.INSTALL, ice.PT)
-	m.Option(code.PREPARE, func(p string) []string {
+	s.Code.Start(m, "", "bin/kafka-server-start.sh", "config/server.properties", func(p string) {
 		port := path.Base(p)
 
 		m.Cmd(nfs.SAVE, path.Join(p, "config/zookeeper.properties"), kit.Format(`
@@ -72,9 +63,7 @@ group.initial.rebalance.delay.ms=0
 `, s.zkport(port), port, kit.Path(p, "var/kafka-logs")))
 
 		s.Code.Daemon(m, p, "bin/zookeeper-server-start.sh", "config/zookeeper.properties")
-		return []string{}
 	})
-	s.Code.Start(m, m.Config(cli.LINUX), "bin/kafka-server-start.sh", "config/server.properties")
 }
 func (s server) ListTopic(m *ice.Message, arg ...string) {
 	s.Code.System(m, m.Option(nfs.DIR), kit.Format("bin/kafka-topics.sh --list --zookeeper localhost:%s", s.zkport(m.Option(tcp.PORT))))

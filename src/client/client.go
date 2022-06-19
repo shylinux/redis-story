@@ -83,6 +83,12 @@ func (c client) Keys(m *ice.Message, arg ...string) *ice.Message {
 			m.Push("ttl", kit.Format(redis.Done("ttl", k)))
 			m.Push("key", k)
 			switch t {
+			case "string":
+				m.Push(mdb.VALUE, kit.Format(redis.Done("GET", k)))
+			case "hash":
+				m.Push(mdb.VALUE, kit.Formats(kit.Dict(redis.Done("HGETALL", k))))
+			case "list":
+				m.Push(mdb.VALUE, kit.Format(redis.Done("LRANGE", k, "0", "-1")))
 			case "set":
 				m.Push(mdb.VALUE, kit.Format(redis.Done("SMEMBERS", k)))
 			case "zset":
@@ -92,12 +98,6 @@ func (c client) Keys(m *ice.Message, arg ...string) *ice.Message {
 					data[list[i]] = list[i+1]
 				}
 				m.Push(mdb.VALUE, kit.Format(data))
-			case "list":
-				m.Push(mdb.VALUE, kit.Format(redis.Done("LRANGE", k, "0", "-1")))
-			case "string":
-				m.Push(mdb.VALUE, kit.Format(redis.Done("GET", k)))
-			case "hash":
-				m.Push(mdb.VALUE, kit.Formats(kit.Dict(redis.Done("HGETALL", k))))
 
 			default:
 				m.Push(mdb.VALUE, "")

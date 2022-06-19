@@ -49,8 +49,7 @@ func (s client) Create(m *ice.Message, arg ...string) {
 	m.Go(func() {
 		for {
 			if msg, err := c.Receive(context.Background()); !m.Warn(err) {
-				s.Zone.Insert(m, CLUSTER, cluster,
-					KEYS, msg.Key(), mdb.VALUE, string(msg.Payload()), PROPERTIES, kit.Format(msg.Properties()))
+				s.Zone.Insert(m, CLUSTER, cluster, KEYS, msg.Key(), mdb.VALUE, string(msg.Payload()), PROPERTIES, kit.Format(msg.Properties()))
 				c.Ack(msg)
 			}
 		}
