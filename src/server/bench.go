@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 
+	"shylinux.com/x/ice"
 	"shylinux.com/x/redis-story/src/client"
 	kit "shylinux.com/x/toolkits"
+	"shylinux.com/x/toolkits/conf"
+	"shylinux.com/x/toolkits/logs"
 	"shylinux.com/x/toolkits/task"
 )
 
@@ -25,7 +27,6 @@ type Stat struct {
 	EndTime   time.Time
 
 	Cost time.Duration
-	mu   sync.Mutex
 
 	Up   float64
 	Down float64
@@ -33,15 +34,15 @@ type Stat struct {
 	AVG  time.Duration
 }
 
-func _GET(i int64) []interface{} { return []interface{}{fmt.Sprintf("hi%d", i)} }
-func _SET(i int64) []interface{} { return []interface{}{fmt.Sprintf("hi%d", i), "hello"} }
+var trans = map[string]func(i int64) ice.List{
+	"GET": func(i int64) ice.List { return ice.List{fmt.Sprintf("hi%d", i)} },
+	"SET": func(i int64) ice.List { return ice.List{fmt.Sprintf("hi%d", i), "hello"} },
+}
+var ErrNotFound = errors.New("not found cmd")
 
-var trans = map[string]func(i int64) []interface{}{"GET": _GET, "SET": _SET}
-
-func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd string, arg []interface{}, res interface{})) (*Stat, error) {
-	// 请求统计
+func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd string, arg ice.List, res ice.Any)) (*Stat, error) {
 	s := &Stat{BeginTime: time.Now()}
-	defer func() {
+	defer func() { // 请求统计
 		if s.EndTime = time.Now(); s.BeginTime != s.EndTime {
 			d := float64(s.EndTime.Sub(s.BeginTime)) / float64(time.Second)
 
@@ -57,15 +58,12 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 	// rp := redis.NewPool(func() (redis.Conn, error) { return redis.Dial("tcp", hosts[0]) }, 10)
 
 	// 协程池
-	list := []interface{}{}
-	for i := int64(0); i < nconn; i++ {
-		list = append(list, i)
-	}
+	tp := task.New(conf.Sub(task.TASK))
+	defer tp.Close()
 
-	task.Wait(list, func(task *task.Task, lock *task.Lock) error {
-		// 请求汇总
+	tp.WaitN(int(nconn), func(task *task.Task, lock *task.Lock) error {
 		var nerr, nok int64
-		defer func() {
+		defer func() { // 请求汇总
 			atomic.AddInt64(&s.NReq, nreq)
 			atomic.AddInt64(&s.NErr, nerr)
 			atomic.AddInt64(&s.NOK, nok)
@@ -78,24 +76,18 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 		cmd := strings.ToUpper(cmds[0])
 		method := trans[cmd]
 		if method == nil {
-			return errors.New("not found")
+			return ErrNotFound
 		}
 
 		for i := int64(0); i < nreq; i++ {
 			func() {
-				// 请求耗时
-				begin := time.Now()
-				defer func() {
-					d := time.Now().Sub(begin)
-
-					s.mu.Lock()
-					defer s.mu.Unlock()
-					s.Cost += d
-				}()
+				defer logs.CostTime(func(d time.Duration) {
+					defer lock.Lock()()
+					s.Cost += d // 请求耗时
+				})()
 
 				arg := method(i)
 				if reply, err := conn.Do(cmd, kit.Simple(arg)...); err != nil {
-					// if reply, err := conn.Do(cmd, arg...); err != nil {
 					// 请求失败
 					nerr++
 				} else {

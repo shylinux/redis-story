@@ -16,35 +16,32 @@ type redis struct {
 	net.Conn
 }
 
+var ErrReadLine = errors.New("read redis line error")
+
 func (r *redis) readLine() (line []byte, err error) {
 	for {
 		buf, err := r.bio.ReadBytes('\n')
 		if err != nil {
 			return nil, err
 		}
-		ice.Pulse.Debug("read list: %v", buf)
 		line = append(line, buf...)
 		if len(line) > 1 && line[len(line)-2] == '\r' {
 			return line[:len(line)-2], nil
 		}
 	}
-	return nil, errors.New("error")
+	return nil, ErrReadLine
 }
 func (r *redis) readList(count int) ([]byte, error) {
-	ice.Pulse.Debug("read list: %v", count)
 	buf := make([]byte, 0, count+2)
 	for begin := 0; count+2-begin > 0; {
-
 		n, e := r.bio.Read(buf[begin : count+2])
-		ice.Pulse.Debug("read list: %v %v", n, e)
 		if begin += n; e != nil {
 			return buf[0:begin], e
 		}
 	}
 	return buf[:count], nil
 }
-func (r *redis) readItem(line string) (interface{}, error) {
-	ice.Pulse.Debug("read line: %v", line)
+func (r *redis) readItem(line string) (ice.Any, error) {
 	switch line[0] {
 	case '-': // error
 		return nil, errors.New(line[1:])
@@ -52,12 +49,11 @@ func (r *redis) readItem(line string) (interface{}, error) {
 		return line[1:], nil
 	case '$': // bulk
 		list, err := r.readList(kit.Int(line[1:]))
-		ice.Pulse.Debug("read list: %v", string(list))
 		return string(list), err
 	case ':': // int
 		return kit.Int(line[1:]), nil
-	case '*': // lis
-		list := []interface{}{}
+	case '*': // list
+		list := ice.List{}
 		for i := 0; i < kit.Int(line[1:]); i++ {
 			line, err := r.readLine()
 			if err != nil {
@@ -74,7 +70,7 @@ func (r *redis) readItem(line string) (interface{}, error) {
 	return nil, nil
 }
 
-func (r *redis) Do(cmd string, arg ...string) (interface{}, error) {
+func (r *redis) Do(cmd string, arg ...string) (ice.Any, error) {
 	fmt.Fprintf(r.Conn, "*%d\r\n", len(arg)+1)
 	fmt.Fprintf(r.Conn, "$%d\r\n%s\r\n", len(cmd), cmd)
 	for _, v := range arg {
@@ -85,10 +81,9 @@ func (r *redis) Do(cmd string, arg ...string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	ice.Pulse.Debug("what %v", line)
 	return r.readItem(string(line))
 }
-func (r *redis) Done(cmd string, arg ...string) interface{} {
+func (r *redis) Done(cmd string, arg ...string) ice.Any {
 	res, _ := r.Do(cmd, arg...)
 	return res
 }
@@ -118,7 +113,7 @@ func (rp *RedisPool) Put(r *redis) {
 }
 
 func NewRedisPool(addr string, password string) *RedisPool {
-	return &RedisPool{addr: addr, Pool: sync.Pool{New: func() interface{} {
+	return &RedisPool{addr: addr, Pool: sync.Pool{New: func() ice.Any {
 		if c, e := NewClient(addr); e == nil {
 			if password != "" {
 				c.Do("auth", password)

@@ -27,9 +27,10 @@ func (s server) Start(m *ice.Message, arg ...string) {
 	})
 }
 func (s server) Bench(m *ice.Message, arg ...string) {
+	defer m.ProcessInner()
 	for _, k := range kit.Split(kit.Select(m.Option("cmdList"), "get,set")) {
 		begin := time.Now()
-		if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ice.FS + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []interface{}, res interface{}) {
+		if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ice.FS + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg ice.List, res ice.Any) {
 			// 检查结果
 
 		}); m.Assert(e) {
@@ -42,7 +43,6 @@ func (s server) Bench(m *ice.Message, arg ...string) {
 			m.Push("avg", s.AVG)
 		}
 	}
-	m.ProcessInner()
 }
 func (s server) List(m *ice.Message, arg ...string) {
 	if s.Code.List(m, "", arg...); len(arg) == 0 || arg[0] == "" {
