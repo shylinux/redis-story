@@ -18,14 +18,16 @@ type redis struct {
 
 var ErrReadLine = errors.New("read redis line error")
 
+func (r *redis) printf(str string, arg ...ice.Any) {
+	fmt.Fprintf(r.Conn, str, arg...)
+}
 func (r *redis) readLine() (line []byte, err error) {
 	for {
 		buf, err := r.bio.ReadBytes('\n')
 		if err != nil {
 			return nil, err
 		}
-		line = append(line, buf...)
-		if len(line) > 1 && line[len(line)-2] == '\r' {
+		if line = append(line, buf...); len(line) > 1 && line[len(line)-2] == '\r' {
 			return line[:len(line)-2], nil
 		}
 	}
@@ -71,10 +73,10 @@ func (r *redis) readItem(line string) (ice.Any, error) {
 }
 
 func (r *redis) Do(cmd string, arg ...string) (ice.Any, error) {
-	fmt.Fprintf(r.Conn, "*%d\r\n", len(arg)+1)
-	fmt.Fprintf(r.Conn, "$%d\r\n%s\r\n", len(cmd), cmd)
+	r.printf("*%d\r\n", len(arg)+1)
+	r.printf("$%d\r\n%s\r\n", len(cmd), cmd)
 	for _, v := range arg {
-		fmt.Fprintf(r.Conn, "$%d\r\n%s\r\n", len(v), v)
+		r.printf("$%d\r\n%s\r\n", len(v), v)
 	}
 
 	line, err := r.readLine()

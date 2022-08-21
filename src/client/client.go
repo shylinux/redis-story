@@ -11,6 +11,10 @@ import (
 	kit "shylinux.com/x/toolkits"
 )
 
+const (
+	KEYS = "KEYS"
+)
+
 type client struct {
 	ice.Code
 	ice.Hash
@@ -19,27 +23,27 @@ type client struct {
 
 	del    string `name:"del" help:"删除"`
 	info   string `name:"info" help:"信息"`
-	keys   string `name:"keys pattern limit=100" help:"列表"`
-	prunes string `name:"prunes pattern" help:"清理"`
+	keys   string `name:"keys limit=100 pattern" help:"列表"`
+	prunes string `name:"prunes limit=100 pattern" help:"清理"`
 	create string `name:"create name=biz host=localhost port=10001 password=root" help:"连接"`
 	list   string `name:"list name@key run info keys prunes create cmd:textarea" help:"缓存"`
 }
 
-func (c client) Inputs(m *ice.Message, arg ...string) {
+func (s client) Inputs(m *ice.Message, arg ...string) {
 	switch arg[0] {
 	case mdb.NAME:
-		c.List(m).Cut(mdb.NAME)
+		s.List(m).Cut(mdb.NAME)
 	case tcp.PORT:
 		m.Cmdy(tcp.SERVER).Cut("port,status,time")
 	default:
-		c.Hash.Inputs(m, arg...)
+		s.Hash.Inputs(m, arg...)
 	}
 }
-func (c client) Del(m *ice.Message, arg ...string) {
-	c.List(m, m.Option(mdb.NAME), "del", m.Option(mdb.KEY))
+func (s client) Del(m *ice.Message, arg ...string) {
+	s.List(m, m.Option(mdb.NAME), "del", m.Option(mdb.KEY))
 }
-func (c client) Info(m *ice.Message, arg ...string) {
-	c.List(m, arg[0], "info")
+func (s client) Info(m *ice.Message, arg ...string) {
+	s.List(m, arg[0], "info")
 	data, domain := kit.Dict(), ""
 	for _, line := range strings.Split(m.Result(), "\r\n") {
 		if strings.HasPrefix(line, "# ") {
@@ -52,10 +56,11 @@ func (c client) Info(m *ice.Message, arg ...string) {
 	}
 	m.SetAppend().SetResult().PushDetail(data).StatusTimeCount()
 }
-func (c client) Keys(m *ice.Message, arg ...string) {
+func (s client) Keys(m *ice.Message, arg ...string) {
 	m.OptionCB("", func(redis *redis) {
-		res, err := redis.Do("keys", kit.Select("*", m.Option("pattern")))
+		res, err := redis.Do(KEYS, kit.Select("*", m.Option("pattern")))
 		m.Assert(err)
+		m.OptionFields("")
 		for _, k := range kit.Slice(kit.Simple(res), 0, kit.Int(kit.Select("100", m.Option(mdb.LIMIT)))) {
 			t := kit.Format(redis.Done("type", k))
 			m.Push("type", t)
@@ -79,15 +84,15 @@ func (c client) Keys(m *ice.Message, arg ...string) {
 			default:
 				m.Push(mdb.VALUE, "")
 			}
-			m.PushAction(c.Del)
+			m.PushAction(s.Del)
 		}
 		m.Sort("type,key").StatusTimeCount()
 	})
-	c.List(m, m.Option(mdb.NAME), "keys")
+	s.List(m, m.Option(mdb.NAME), KEYS)
 }
-func (c client) Prunes(m *ice.Message, arg ...string) {
+func (s client) Prunes(m *ice.Message, arg ...string) {
 	m.OptionCB("", func(redis *redis) {
-		res, err := redis.Do("keys", m.Option("pattern"))
+		res, err := redis.Do(KEYS, m.Option("pattern"))
 		m.Assert(err)
 		for _, k := range kit.Slice(kit.Simple(res), 0, 100) {
 			m.Push(mdb.KEY, k)
@@ -96,30 +101,27 @@ func (c client) Prunes(m *ice.Message, arg ...string) {
 			m.Push(ice.RES, kit.Format(res))
 		}
 	})
-	c.List(m, m.Option(mdb.NAME), "keys")
+	s.List(m, m.Option(mdb.NAME), KEYS)
 }
-func (c client) Xterm(m *ice.Message, arg ...string) {
-	msg := c.List(m.Spawn(), m.Option(mdb.NAME))
-	c.Code.Xterm(m, kit.Format("%s -h %s -p %s -a '%s'", kit.Path(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), ice.BIN, "redis-cli"), msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
-}
-func (c client) List(m *ice.Message, arg ...string) *ice.Message {
-	if c.Hash.List(m, arg...); len(arg) == 0 || arg[0] == "" {
-		m.Sort(mdb.NAME).PushAction(c.Xterm, c.Hash.Remove)
+func (s client) List(m *ice.Message, arg ...string) *ice.Message {
+	if s.Hash.List(m, arg...); len(arg) < 1 || arg[0] == "" {
+		m.Sort(mdb.NAME).PushAction(s.Xterm, s.Hash.Remove)
 		return m // 连接列表
-	} else if len(arg) == 1 || arg[1] == "" {
-		m.PushAction(c.Xterm, c.Hash.Remove)
+	} else if len(arg) < 2 || arg[1] == "" {
+		m.PushAction(s.Xterm, s.Hash.Remove)
 		m.EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
 		return m // 连接详情
 	}
 
-	rp := c.Hash.Target(m, arg[0], func() ice.Any {
+	// 连接池
+	rp := s.Hash.Target(m, arg[0], func() ice.Any {
 		return NewRedisPool(kit.Format("%s:%s", m.Append(tcp.HOST), m.Append(tcp.PORT)), m.Append(aaa.PASSWORD))
 	}).(*RedisPool)
-	m.SetAppend()
 
 	r := rp.Get()
 	defer rp.Put(r)
 
+	m.SetAppend()
 	switch cb := m.OptionCB("").(type) {
 	case func(*redis):
 		cb(r)
@@ -149,6 +151,12 @@ func (c client) List(m *ice.Message, arg ...string) *ice.Message {
 		m.SetAppend()
 	}
 	return m
+}
+func (s client) Xterm(m *ice.Message, arg ...string) {
+	m.OptionFields("host,port,password")
+	msg := s.List(m.Spawn(), m.Option(mdb.NAME))
+	s.Code.Xterm(m, kit.Format("%s -h %s -p %s -a %s", kit.Path(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"),
+		msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
 }
 
 func init() { ice.CodeModCmd(client{}) }

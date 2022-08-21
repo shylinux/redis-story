@@ -15,7 +15,6 @@ make -j8 && make PREFIX=$PWD/_install install
 section "启动服务"
 spark shell `
 cd ./_install
-
 ./bin/redis-server &
 `
 
