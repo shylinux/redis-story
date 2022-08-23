@@ -3,31 +3,35 @@ refer `
 官网 https://kafka.apache.org/
 源码 https://github.com/apache/kafka
 文档 https://kafka.apache.org/documentation/
-入门 https://www.cnblogs.com/along21/p/10278100.html
-接入 https://github.com/segmentio/kafka-go
 `
 
+chapter "server"
+field web.code.kafka.server
+
 section "下载安装"
-spark shell `
+shell `
 wget http://mirrors.tencent.com/apache/kafka/2.8.1/kafka_2.12-2.8.1.tgz
 tar xvf kafka_2.12-2.8.1.tgz && cd kafka_2.12-2.8.1
 `
 
 section "启动服务"
-spark shell `
+shell `
 bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
 bin/kafka-server-start.sh  config/server.properties
 `
 
 section "创建主题"
-spark shell `
-bin/kafka-topics.sh --create --zookeeper localhost:20002 --replication-factor 1 --partitions 1 --topic TASK_AGENT
-bin/kafka-topics.sh --list --zookeeper localhost:20002
+shell `
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic TASK_AGENT
+bin/kafka-topics.sh --list --zookeeper localhost:2181
 `
 
+chapter "client"
+field web.code.kafka.client
+
 section "收发消息"
-spark shell `
-bin/kafka-console-consumer.sh --bootstrap-server localhost:10002 --topic TASK_AGENT --from-beginning
-bin/kafka-console-producer.sh --broker-list localhost:10002 --topic TASK_AGENT
+shell `
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic TASK_AGENT --from-beginning
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic TASK_AGENT
 `
 

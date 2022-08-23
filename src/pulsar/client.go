@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"shylinux.com/x/ice"
-	"shylinux.com/x/icebergs/base/cli"
 	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
@@ -13,70 +12,78 @@ import (
 )
 
 const (
-	CLUSTER = "cluster"
-	TOPIC   = "topic"
-	GROUP   = "group"
-	SERVER  = "server"
-	TOKEN   = "token"
+	TOKEN = "token"
+	TOPIC = "topic"
+	GROUP = "group"
 )
 
 const (
 	KEYS       = "keys"
 	MSGID      = "msgid"
 	PROPERTIES = "properties"
-	PREFIX     = "persistent://"
+	PERSISTENT = "persistent://"
 )
 
 type client struct {
 	ice.Zone
-	short string `data:"cluster"`
-	field string `data:"time,id,msgid,keys,value"`
+	short string `data:"zone"`
+	field string `data:"time,zone,host,port,token,topic,count"`
 
-	create string `name:"create cluster topic server token" help:"创建"`
-	send   string `name:"send cluster keys=hi value:textarea=hello" help:"发送"`
-	list   string `name:"list cluster id auto send" help:"消息队列"`
+	create string `name:"create zone=biz host port=10004 token topic='public/default/my-topic' group" help:"创建"`
+	send   string `name:"send zone keys=hi value:textarea=hello" help:"发送"`
+	list   string `name:"list zone@key id auto" help:"消息队列"`
 }
 
+func (s client) Client(m *ice.Message, host, port, token string) pulsar.Client {
+	options := pulsar.ClientOptions{URL: kit.Format("pulsar://%s:%s", kit.Select(tcp.LOCALHOST, host), port)}
+	if token != "" {
+		options.Authentication = pulsar.NewAuthenticationToken(token)
+	}
+	client, e := pulsar.NewClient(options)
+	m.Assert(e)
+	return client
+}
 func (s client) Create(m *ice.Message, arg ...string) {
-	s.Zone.Create(m, m.OptionSimple(CLUSTER, TOPIC, SERVER, TOKEN)...)
-
-	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: m.Option(SERVER), Authentication: pulsar.NewAuthenticationToken(m.Option(TOKEN))})
+	s.Hash.Create(m)
+	client := s.Client(m, m.Option(tcp.HOST), m.Option(tcp.PORT), m.Option(TOKEN))
+	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PERSISTENT + m.Option(TOPIC), SubscriptionName: kit.Select(ice.Info.HostName, m.Option(GROUP)), Type: pulsar.Shared})
 	m.Assert(e)
 
-	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PREFIX + m.Option(TOPIC), SubscriptionName: m.Cmdx(cli.RUNTIME, tcp.HOSTNAME), Type: pulsar.Shared})
-	m.Assert(e)
-
-	cluster := m.Option(CLUSTER)
+	zone := m.Option(mdb.ZONE)
 	m.Go(func() {
 		for {
 			if msg, err := c.Receive(context.Background()); !m.Warn(err) {
-				s.Zone.Insert(m, CLUSTER, cluster, MSGID, kit.Format("%v", msg.ID()), KEYS, msg.Key(), mdb.VALUE, string(msg.Payload()), PROPERTIES, kit.Format(msg.Properties()))
+				s.Zone.Insert(m, mdb.ZONE, zone, MSGID, kit.Format("%v", msg.ID()), KEYS, msg.Key(), mdb.VALUE, string(msg.Payload()), PROPERTIES, kit.Format(msg.Properties()))
 				c.Ack(msg)
 			}
 		}
 	})
 }
-
 func (s client) Send(m *ice.Message, arg ...string) {
-	msg := m.Cmd(mdb.SELECT, m.PrefixKey(), "", mdb.HASH, m.OptionSimple(CLUSTER), kit.Dict(ice.MSG_FIELDS, kit.Fields(TOPIC, SERVER, TOKEN)))
-
-	client, e := pulsar.NewClient(pulsar.ClientOptions{URL: msg.Append(SERVER), Authentication: pulsar.NewAuthenticationToken(msg.Append(TOKEN))})
+	s.Hash.List(m, m.Option(mdb.ZONE))
+	client := s.Client(m, m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(TOKEN))
+	p, e := client.CreateProducer(pulsar.ProducerOptions{Topic: PERSISTENT + m.Append(TOPIC)})
 	m.Assert(e)
 
-	p, e := client.CreateProducer(pulsar.ProducerOptions{Topic: PREFIX + msg.Append(TOPIC)})
-	m.Assert(e)
-
-	msgid, e := p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE)), Properties: map[string]string{}})
-	m.Push("msgid", msgid)
+	msgid, e := p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE))})
+	m.Push(MSGID, msgid)
 	m.Assert(e)
 }
 
 func (s client) List(m *ice.Message, arg ...string) {
-	if len(arg) == 0 {
-		m.OptionFields(CLUSTER, TOPIC, GROUP, SERVER, TOKEN)
-	}
-	if s.Zone.List(m, arg...); m.FieldsIsDetail() {
-		m.Append(mdb.VALUE, kit.Formats(kit.UnMarshal(m.Append(mdb.VALUE))))
+	switch len(kit.Slice(arg, 0, 2)) {
+	case 0:
+		m.Action(s.Create)
+		s.Hash.List(m)
+	case 1:
+		m.OptionFields("time,id,msgid,keys,value")
+		fallthrough
+	default:
+		if s.Zone.ListPage(m, arg...); m.FieldsIsDetail() {
+			m.Append(mdb.VALUE, kit.Formats(kit.UnMarshal(m.Append(mdb.VALUE))))
+		} else {
+			m.Action(s.Send, mdb.PAGE)
+		}
 	}
 }
 

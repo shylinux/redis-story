@@ -3,7 +3,7 @@ field "服务器" web.code.redis.server
 field "源代码" web.code.inner args `usr/install/redis-5.0.8/src/ dict.h 82`
 
 section "编译安装"
-spark shell `
+shell `
 yum install -y wget make gcc
 
 wget http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz
@@ -13,17 +13,17 @@ make -j8 && make PREFIX=$PWD/_install install
 `
 
 section "启动服务"
-spark shell `
+shell `
 cd ./_install
 ./bin/redis-server &
 `
 
 section "连接服务"
-spark shell `
+shell `
 ./bin/redis-cli
 `
 section "体验服务"
-spark redis `
+shell redis `
 get hi
 set hi hello
 get hi

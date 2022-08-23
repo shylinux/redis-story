@@ -11,14 +11,13 @@ import (
 
 type server struct {
 	ice.Code
-
 	source string `data:"http://mirrors.tencent.com/apache/kafka/2.8.1/kafka-2.8.1-src.tgz"`
 	linux  string `data:"http://mirrors.tencent.com/apache/kafka/2.8.1/kafka_2.12-2.8.1.tgz"`
 
 	listTopic string `name:"listTopic" help:"主题列表"`
 	addTopic  string `name:"addTopic topic=TASK_AGENT" help:"添加主题"`
 
-	start string `name:"start port=10002" help:"启动"`
+	start string `name:"start port=10003" help:"启动"`
 	list  string `name:"list port path auto start install download" help:"服务器"`
 }
 
@@ -28,13 +27,6 @@ func (s server) zkport(port string) string {
 func (s server) Start(m *ice.Message, arg ...string) {
 	s.Code.Start(m, "", "bin/kafka-server-start.sh", "config/server.properties", func(p string) {
 		port := path.Base(p)
-
-		m.Cmd(nfs.SAVE, path.Join(p, "config/zookeeper.properties"), kit.Format(`
-clientPort=%s
-dataDir=%s
-maxClientCnxns=0
-admin.enableServer=false
-`, s.zkport(port), kit.Path(p, "var/zookeeper")))
 
 		m.Cmd(nfs.SAVE, path.Join(p, "config/server.properties"), kit.Format(`
 zookeeper.connect=localhost:%s
@@ -61,6 +53,13 @@ log.retention.check.interval.ms=300000
 zookeeper.connection.timeout.ms=18000
 group.initial.rebalance.delay.ms=0
 `, s.zkport(port), port, kit.Path(p, "var/kafka-logs")))
+
+		m.Cmd(nfs.SAVE, path.Join(p, "config/zookeeper.properties"), kit.Format(`
+clientPort=%s
+dataDir=%s
+maxClientCnxns=0
+admin.enableServer=false
+`, s.zkport(port), kit.Path(p, "var/zookeeper")))
 
 		s.Code.Daemon(m, p, "bin/zookeeper-server-start.sh", "config/zookeeper.properties")
 	})
