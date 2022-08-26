@@ -30,7 +30,7 @@ type client struct {
 	short string `data:"sess"`
 	field string `data:"time,sess,host,port,token,topic,count"`
 
-	create string `name:"create sess=biz host=localhost port=10004 token topic='public/default/my-topic' group" help:"创建"`
+	create string `name:"create sess=biz host=localhost port token topic='public/default/my-topic' group" help:"创建"`
 	send   string `name:"send sess keys=hi value:textarea=hello" help:"发送"`
 	list   string `name:"list sess@key id auto" help:"消息队列"`
 }

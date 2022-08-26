@@ -18,7 +18,7 @@ type server struct {
 	listTopic string `name:"listTopic" help:"主题列表"`
 	addTopic  string `name:"addTopic topic=TASK_AGENT" help:"添加主题"`
 
-	start string `name:"start port=10004" help:"启动"`
+	start string `name:"start port" help:"启动"`
 	list  string `name:"list port path auto start install download" help:"服务器"`
 }
 
