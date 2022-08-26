@@ -17,7 +17,6 @@ const (
 	KEYS = "KEYS"
 	DEL  = "DEL"
 )
-
 const (
 	STRING = "string"
 	HASH   = "hash"
@@ -164,7 +163,7 @@ func (s client) List(m *ice.Message, arg ...string) *ice.Message {
 	return m
 }
 func (s client) Xterm(m *ice.Message, arg ...string) {
-	m.OptionFields(m.Config(mdb.FIELD), aaa.PASSWORD)
+	m.OptionFields("password,host,port")
 	msg := s.List(m.Spawn(), m.Option(aaa.SESS))
 	s.Code.Xterm(m, kit.Format("%s -h %s -p %s -a %s", kit.Path(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"),
 		msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
