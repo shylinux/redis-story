@@ -12,6 +12,7 @@ import (
 
 type server struct {
 	ice.Code
+	action string `data:"bench"`
 	source string `data:"http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz"`
 	start  string `name:"start port=10001 password=root" help:"启动"`
 	bench  string `name:"bench port nconn=100 nreq=1000 cmdList" help:"压测"`
@@ -45,8 +46,6 @@ func (s server) Bench(m *ice.Message, arg ...string) {
 	}
 }
 func (s server) List(m *ice.Message, arg ...string) {
-	if s.Code.List(m, "", arg...); len(arg) < 1 || arg[0] == "" {
-		m.PushAction(s.Bench)
-	}
+	s.Code.List(m, "", arg...)
 }
 func init() { ice.CodeModCmd(server{}) }

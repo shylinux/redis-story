@@ -11,8 +11,9 @@ import (
 
 type server struct {
 	ice.Code
-	source string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.1/apache-pulsar-2.10.1-src.tar.gz"`
 	linux  string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.1/apache-pulsar-2.10.1-bin.tar.gz"`
+	source string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.1/apache-pulsar-2.10.1-src.tar.gz"`
+	action string `data:"listTopic,addTopic"`
 
 	listTopic string `name:"listTopic" help:"主题列表"`
 	addTopic  string `name:"addTopic topic=TASK_AGENT" help:"添加主题"`
@@ -58,9 +59,7 @@ func (s server) Start(m *ice.Message, arg ...string) {
 	})
 }
 func (s server) List(m *ice.Message, arg ...string) {
-	if s.Code.List(m, "pulsar", arg...); len(arg) == 0 {
-		m.PushAction(s.ListTopic, s.AddTopic)
-	}
+	s.Code.List(m, "pulsar", arg...)
 }
 
 func init() { ice.CodeCtxCmd(server{}) }

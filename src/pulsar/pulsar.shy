@@ -7,18 +7,24 @@ refer `
 
 chapter "server"
 field web.code.pulsar.server
+
+section "下载安装"
 shell `
 wget https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.1/apache-pulsar-2.10.1-bin.tar.gz
 tar xvf apache-pulsar-2.10.1-bin.tar.gz && cd apache-pulsar-2.10.1
+`
 
+section "启动服务"
+shell `
 ./bin/pulsar standalone
 ./bin/pulsar-admin topics list public/default
 `
 
-chapter "client"
-field web.code.pulsar.client
+section "收发消息"
 shell `
 bin/pulsar-client consume my-topic -s "first-subscription"
 bin/pulsar-client produce my-topic --messages "hello-pulsar"
 `
 
+chapter "client"
+field web.code.pulsar.client

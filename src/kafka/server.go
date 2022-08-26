@@ -11,8 +11,9 @@ import (
 
 type server struct {
 	ice.Code
-	source string `data:"http://mirrors.tencent.com/apache/kafka/2.8.1/kafka-2.8.1-src.tgz"`
 	linux  string `data:"http://mirrors.tencent.com/apache/kafka/2.8.1/kafka_2.12-2.8.1.tgz"`
+	source string `data:"http://mirrors.tencent.com/apache/kafka/2.8.1/kafka-2.8.1-src.tgz"`
+	action string `data:"listTopic,addTopic"`
 
 	listTopic string `name:"listTopic" help:"主题列表"`
 	addTopic  string `name:"addTopic topic=TASK_AGENT" help:"添加主题"`
@@ -71,9 +72,7 @@ func (s server) AddTopic(m *ice.Message, arg ...string) {
 	s.Code.System(m, m.Option(nfs.DIR), kit.Format("bin/kafka-topics.sh --create --zookeeper localhost:%s --replication-factor 1 --partitions 1 --topic %s", s.zkport(m.Option(tcp.PORT)), m.Option(TOPIC)))
 }
 func (s server) List(m *ice.Message, arg ...string) {
-	if s.Code.List(m, "kafka-server", arg...); len(arg) == 0 {
-		m.PushAction(s.ListTopic, s.AddTopic)
-	}
+	s.Code.List(m, "", arg...)
 }
 
 func init() { ice.CodeCtxCmd(server{}) }

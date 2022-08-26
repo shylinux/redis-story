@@ -6,33 +6,44 @@ import (
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/aaa"
+	"shylinux.com/x/icebergs/base/lex"
 	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
 )
 
 const (
+	INFO = "INFO"
 	KEYS = "KEYS"
+	DEL  = "DEL"
+)
+
+const (
+	STRING = "string"
+	HASH   = "hash"
+	LIST   = "list"
+	ZSET   = "zset"
+	SET    = "set"
 )
 
 type client struct {
 	ice.Code
 	ice.Hash
-	short string `data:"name"`
-	field string `data:"time,name,host,port"`
+	short string `data:"sess"`
+	field string `data:"time,sess,host,port"`
 
 	del    string `name:"del" help:"删除"`
 	info   string `name:"info" help:"信息"`
 	keys   string `name:"keys limit=100 pattern" help:"列表"`
 	prunes string `name:"prunes limit=100 pattern" help:"清理"`
-	create string `name:"create name=biz host=localhost port=10001 password=root" help:"连接"`
-	list   string `name:"list name@key run info keys prunes create cmd:textarea" help:"缓存"`
+	create string `name:"create sess=biz host=localhost port=10001 password=root" help:"连接"`
+	list   string `name:"list sess@key run info keys prunes create cmd:textarea" help:"缓存"`
 }
 
 func (s client) Inputs(m *ice.Message, arg ...string) {
 	switch arg[0] {
-	case mdb.NAME:
-		s.List(m).Cut(mdb.NAME)
+	case aaa.SESS:
+		s.List(m).Cut(arg[0])
 	case tcp.PORT:
 		m.Cmdy(tcp.SERVER).Cut("port,status,time")
 	default:
@@ -40,10 +51,10 @@ func (s client) Inputs(m *ice.Message, arg ...string) {
 	}
 }
 func (s client) Del(m *ice.Message, arg ...string) {
-	s.List(m, m.Option(mdb.NAME), "del", m.Option(mdb.KEY))
+	s.List(m, m.Option(aaa.SESS), DEL, m.Option(mdb.KEY))
 }
 func (s client) Info(m *ice.Message, arg ...string) {
-	s.List(m, arg[0], "info")
+	s.List(m, arg[0], INFO)
 	data, domain := kit.Dict(), ""
 	for _, line := range strings.Split(m.Result(), "\r\n") {
 		if strings.HasPrefix(line, "# ") {
@@ -58,7 +69,7 @@ func (s client) Info(m *ice.Message, arg ...string) {
 }
 func (s client) Keys(m *ice.Message, arg ...string) {
 	m.OptionCB("", func(redis *redis) {
-		res, err := redis.Do(KEYS, kit.Select("*", m.Option("pattern")))
+		res, err := redis.Do(KEYS, kit.Select("*", m.Option(lex.PATTERN)))
 		m.Assert(err)
 		m.OptionFields("")
 		for _, k := range kit.Slice(kit.Simple(res), 0, kit.Int(kit.Select("100", m.Option(mdb.LIMIT)))) {
@@ -67,20 +78,20 @@ func (s client) Keys(m *ice.Message, arg ...string) {
 			m.Push("ttl", kit.Format(redis.Done("ttl", k)))
 			m.Push("key", k)
 			switch t {
-			case "string":
+			case STRING:
 				m.Push(mdb.VALUE, kit.Format(redis.Done("GET", k)))
-			case "hash":
+			case HASH:
 				m.Push(mdb.VALUE, kit.Formats(kit.Dict(redis.Done("HGETALL", k))))
-			case "list":
+			case LIST:
 				m.Push(mdb.VALUE, kit.Format(redis.Done("LRANGE", k, "0", "-1")))
-			case "set":
-				m.Push(mdb.VALUE, kit.Format(redis.Done("SMEMBERS", k)))
-			case "zset":
+			case ZSET:
 				data, list := kit.Dict(), kit.Simple(redis.Done("ZRANGE", k, "0", "-1", "WITHSCORES"))
 				for i := 0; i < len(list)-1; i += 2 {
 					data[list[i]] = list[i+1]
 				}
 				m.Push(mdb.VALUE, kit.Format(data))
+			case SET:
+				m.Push(mdb.VALUE, kit.Format(redis.Done("SMEMBERS", k)))
 			default:
 				m.Push(mdb.VALUE, "")
 			}
@@ -88,27 +99,27 @@ func (s client) Keys(m *ice.Message, arg ...string) {
 		}
 		m.Sort("type,key").StatusTimeCount()
 	})
-	s.List(m, m.Option(mdb.NAME), KEYS)
+	s.List(m, m.Option(aaa.SESS), KEYS)
 }
 func (s client) Prunes(m *ice.Message, arg ...string) {
 	m.OptionCB("", func(redis *redis) {
-		res, err := redis.Do(KEYS, m.Option("pattern"))
+		res, err := redis.Do(KEYS, m.Option(lex.PATTERN))
 		m.Assert(err)
 		for _, k := range kit.Slice(kit.Simple(res), 0, 100) {
 			m.Push(mdb.KEY, k)
-			res, err := redis.Do("del", k)
+			res, err := redis.Do(DEL, k)
 			m.Push(ice.ERR, kit.Format(err))
 			m.Push(ice.RES, kit.Format(res))
 		}
 	})
-	s.List(m, m.Option(mdb.NAME), KEYS)
+	s.List(m, m.Option(aaa.SESS), KEYS)
 }
 func (s client) List(m *ice.Message, arg ...string) *ice.Message {
 	if s.Hash.List(m, arg...); len(arg) < 1 || arg[0] == "" {
-		m.Sort(mdb.NAME).PushAction(s.Xterm, s.Hash.Remove)
+		m.Sort(aaa.SESS).PushAction(s.Xterm, s.Remove)
 		return m // 连接列表
 	} else if len(arg) < 2 || arg[1] == "" {
-		m.PushAction(s.Xterm, s.Hash.Remove)
+		m.PushAction(s.Xterm, s.Remove)
 		m.EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
 		return m // 连接详情
 	}
@@ -153,8 +164,8 @@ func (s client) List(m *ice.Message, arg ...string) *ice.Message {
 	return m
 }
 func (s client) Xterm(m *ice.Message, arg ...string) {
-	m.OptionFields("host,port,password")
-	msg := s.List(m.Spawn(), m.Option(mdb.NAME))
+	m.OptionFields(m.Config(mdb.FIELD), aaa.PASSWORD)
+	msg := s.List(m.Spawn(), m.Option(aaa.SESS))
 	s.Code.Xterm(m, kit.Format("%s -h %s -p %s -a %s", kit.Path(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"),
 		msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
 }
