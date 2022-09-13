@@ -165,8 +165,8 @@ func (s client) List(m *ice.Message, arg ...string) *ice.Message {
 func (s client) Xterm(m *ice.Message, arg ...string) {
 	m.OptionFields("password,host,port")
 	msg := s.List(m.Spawn(), m.Option(aaa.SESS))
-	s.Code.Xterm(m, kit.Format("%s -h %s -p %s -a %s", kit.Path(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"),
-		msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
+	s.Code.Xterm(m, []string{mdb.TYPE, kit.Format("%s -h %s -p %s -a %s", kit.Path(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"),
+		msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD))}, arg...)
 }
 
 func init() { ice.CodeModCmd(client{}) }
