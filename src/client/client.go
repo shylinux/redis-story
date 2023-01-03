@@ -122,23 +122,18 @@ func (s client) List(m *ice.Message, arg ...string) *ice.Message {
 		m.EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
 		return m // 连接详情
 	}
-
-	// 连接池
+	msg := m.Spawn().Copy(m.Message)
 	rp := s.Hash.Target(m, arg[0], func() ice.Any {
-		return NewRedisPool(kit.Format("%s:%s", m.Append(tcp.HOST), m.Append(tcp.PORT)), m.Append(aaa.PASSWORD))
+		return NewRedisPool(kit.Format("%s:%s", msg.Append(tcp.HOST), msg.Append(tcp.PORT)), msg.Append(aaa.PASSWORD))
 	}).(*RedisPool)
-
 	r := rp.Get()
 	defer rp.Put(r)
-
 	m.SetAppend()
 	switch cb := m.OptionCB("").(type) {
 	case func(*redis):
 		cb(r)
 		return m
 	}
-
-	// 命令行
 	for _, line := range strings.Split(strings.Join(arg[1:], ice.SP), ice.NL) {
 		m.Push(mdb.TIME, kit.Format(time.Now()))
 		m.Push(ice.CMD, line)

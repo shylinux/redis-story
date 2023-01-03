@@ -78,7 +78,6 @@ func (r *redis) Do(cmd string, arg ...string) (ice.Any, error) {
 	for _, v := range arg {
 		r.printf("$%d\r\n%s\r\n", len(v), v)
 	}
-
 	line, err := r.readLine()
 	if err != nil {
 		return nil, err

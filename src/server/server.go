@@ -34,7 +34,6 @@ func (s server) Bench(m *ice.Message, arg ...string) {
 		begin := time.Now()
 		if s, e := Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ice.FS + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []string, res ice.Any) {
 			// 检查结果
-
 		}); m.Assert(e) {
 			m.Push("time", begin)
 			m.Push("cmd", k)
