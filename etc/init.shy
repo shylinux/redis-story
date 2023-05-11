@@ -1,6 +1,3 @@
-~aaa
-
 ~web
-
-~ssh
-
+	config serve meta.main /chat/cmd/desktop
+	config space meta.main desktop

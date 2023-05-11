@@ -1,6 +1,5 @@
 chapter "server"
 field "服务器" web.code.redis.server
-field "源代码" web.code.inner args `usr/install/redis-5.0.8/src/ dict.h 82`
 
 section "编译安装"
 shell `
@@ -22,8 +21,9 @@ section "连接服务"
 shell `
 ./bin/redis-cli
 `
+
 section "体验服务"
-shell redis `
+shell `
 get hi
 set hi hello
 get hi

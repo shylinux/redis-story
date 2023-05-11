@@ -1,4 +1,5 @@
 chapter "源码解析"
+field "源代码" web.code.inner args `usr/install/redis-5.0.8/src/ dict.h 82`
 field "计数" web.code.git.count args usr/install/redis-5.0.8/src/
 
 section "目录文件"
