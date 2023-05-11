@@ -1,6 +1,6 @@
 module shylinux.com/x/redis-story
 
-go 1.11
+go 1.13
 
 replace (
 	shylinux.com/x/ice => ./usr/release

@@ -7,7 +7,7 @@ yum install -y wget make gcc
 
 wget http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz
 tar xvf redis-5.0.8.tar.gz && cd redis-5.0.8
-
+# make MALLOC=libc
 make -j8 && make PREFIX=$PWD/_install install
 `
 
