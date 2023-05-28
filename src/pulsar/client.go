@@ -45,9 +45,9 @@ func (s client) Client(m *ice.Message, host, port, token string) pulsar.Client {
 	return client
 }
 func (s client) Create(m *ice.Message, arg ...string) {
-	s.Hash.Create(m)
+	s.Zone.Create(m)
 	client := s.Client(m, m.Option(tcp.HOST), m.Option(tcp.PORT), m.Option(TOKEN))
-	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PERSISTENT + m.Option(TOPIC), SubscriptionName: kit.Select(ice.Info.HostName, m.Option(GROUP)), Type: pulsar.Shared})
+	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PERSISTENT + m.Option(TOPIC), SubscriptionName: kit.Select(ice.Info.NodeName, m.Option(GROUP)), Type: pulsar.Shared})
 	m.Assert(e)
 
 	sess := m.Option(aaa.SESS)
@@ -65,7 +65,7 @@ func (s client) Create(m *ice.Message, arg ...string) {
 func (s client) Send(m *ice.Message, arg ...string) {
 	msg := &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE))}
 
-	s.Hash.List(m, m.Option(aaa.SESS))
+	s.Zone.List(m, m.Option(aaa.SESS))
 	client := s.Client(m, m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(TOKEN))
 	p, e := client.CreateProducer(pulsar.ProducerOptions{Topic: PERSISTENT + m.Append(TOPIC)})
 	m.Assert(e)
@@ -79,7 +79,7 @@ func (s client) Send(m *ice.Message, arg ...string) {
 func (s client) List(m *ice.Message, arg ...string) {
 	switch len(kit.Slice(arg, 0, 2)) {
 	case 0:
-		s.Hash.List(m).Action(s.Create)
+		s.Zone.List(m).Action(s.Create)
 	case 1:
 		m.OptionFields("time,id,msgid,keys,value")
 		fallthrough

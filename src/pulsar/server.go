@@ -29,7 +29,7 @@ func (s server) AddTopic(m *ice.Message, arg ...string) {
 }
 func (s server) Start(m *ice.Message, arg ...string) {
 	s.Code.Start(m, "", "bin/pulsar", "standalone", func(p string, port int) {
-		kit.Rewrite(path.Join(p, "conf/standalone.conf"), func(text string) string {
+		nfs.Rewrite(m.Message, path.Join(p, "conf/standalone.conf"), func(text string) string {
 			switch text {
 			case "webServicePort=8080":
 				text = strings.Replace(text, "8080", kit.Format(port+10000), 1)
@@ -38,7 +38,7 @@ func (s server) Start(m *ice.Message, arg ...string) {
 			}
 			return text
 		})
-		kit.Rewrite(path.Join(p, "conf/client.conf"), func(text string) string {
+		nfs.Rewrite(m.Message, path.Join(p, "conf/client.conf"), func(text string) string {
 			switch text {
 			case "webServiceUrl=http://localhost:8080/":
 				text = strings.Replace(text, "8080", kit.Format(port+10000), 1)
@@ -47,7 +47,7 @@ func (s server) Start(m *ice.Message, arg ...string) {
 			}
 			return text
 		})
-		kit.Rewrite(path.Join(p, "conf/zookeeper.conf"), func(text string) string {
+		nfs.Rewrite(m.Message, path.Join(p, "conf/zookeeper.conf"), func(text string) string {
 			switch text {
 			case "clientPort=2181":
 				text = strings.Replace(text, "2181", kit.Format(port+20000), 1)

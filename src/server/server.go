@@ -16,7 +16,7 @@ type server struct {
 	source string `data:"http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz"`
 	action string `data:"bench"`
 
-	start string `name:"start port*=10001 password*=root" help:"启动"`
+	start string `name:"start port*=10001 password*=demo" help:"启动"`
 	bench string `name:"bench port*=10001 nconn*=100 nreq*=1000 cmdList" help:"压测"`
 	list  string `name:"list port path auto start build download" help:"缓存"`
 }
