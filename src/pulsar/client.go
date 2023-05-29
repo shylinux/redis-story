@@ -26,30 +26,28 @@ const (
 )
 
 type client struct {
+	ice.Hash
 	ice.Zone
-	short string `data:"sess"`
-	field string `data:"time,sess,host,port,token,topic,count"`
-
-	create string `name:"create sess=biz host=localhost port token topic='public/default/my-topic' group" help:"创建"`
-	send   string `name:"send sess keys=hi value:textarea=hello" help:"发送"`
+	short  string `data:"sess"`
+	field  string `data:"time,id,msgid,keys,value"`
+	fields string `data:"time,sess,host,port,token,topic,count"`
+	create string `name:"create sess*=biz host*=localhost port*=10003 token topic='public/default/my-topic' group" help:"创建"`
+	send   string `name:"send sess* keys*=hi value:textarea*=hello" help:"发送"`
 	list   string `name:"list sess@key id auto" help:"消息队列"`
 }
 
 func (s client) Client(m *ice.Message, host, port, token string) pulsar.Client {
 	options := pulsar.ClientOptions{URL: kit.Format("pulsar://%s:%s", kit.Select(tcp.LOCALHOST, host), port)}
-	if token != "" {
-		options.Authentication = pulsar.NewAuthenticationToken(token)
-	}
+	kit.If(token != "", func() { options.Authentication = pulsar.NewAuthenticationToken(token) })
 	client, e := pulsar.NewClient(options)
 	m.Assert(e)
 	return client
 }
 func (s client) Create(m *ice.Message, arg ...string) {
-	s.Zone.Create(m)
+	s.Zone.Create(m, arg...)
 	client := s.Client(m, m.Option(tcp.HOST), m.Option(tcp.PORT), m.Option(TOKEN))
 	c, e := client.Subscribe(pulsar.ConsumerOptions{Topic: PERSISTENT + m.Option(TOPIC), SubscriptionName: kit.Select(ice.Info.NodeName, m.Option(GROUP)), Type: pulsar.Shared})
 	m.Assert(e)
-
 	sess := m.Option(aaa.SESS)
 	m.Go(func() {
 		for {
@@ -63,17 +61,12 @@ func (s client) Create(m *ice.Message, arg ...string) {
 	})
 }
 func (s client) Send(m *ice.Message, arg ...string) {
-	msg := &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE))}
-
-	s.Zone.List(m, m.Option(aaa.SESS))
-	client := s.Client(m, m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(TOKEN))
-	p, e := client.CreateProducer(pulsar.ProducerOptions{Topic: PERSISTENT + m.Append(TOPIC)})
+	msg := s.Hash.List(m.Spawn(), m.Option(aaa.SESS))
+	p, e := s.Client(m, msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(TOKEN)).CreateProducer(pulsar.ProducerOptions{Topic: PERSISTENT + msg.Append(TOPIC)})
 	m.Assert(e)
-
-	msgid, e := p.Send(context.Background(), msg)
-	m.Push(MSGID, msgid)
-	m.SetAppend()
-	m.Assert(e)
+	if msgid, e := p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE))}); !m.Warn(e) {
+		m.Echo(msgid)
+	}
 }
 
 func (s client) List(m *ice.Message, arg ...string) {

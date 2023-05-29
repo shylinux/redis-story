@@ -10,20 +10,21 @@ field web.code.pulsar.server
 
 section "下载安装"
 shell `
-wget https://mirrors.tencent.com/apache/pulsar/pulsar-3.0.0/apache-pulsar-3.0.0-bin.tar.gz
-tar xvf apache-pulsar-3.0.0-bin.tar.gz && cd apache-pulsar-3.0.0
+wget https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.2/apache-pulsar-2.10.2-bin.tar.gz
+tar xvf apache-pulsar-2.10.2-bin.tar.gz && cd apache-pulsar-2.10.2
 `
 
 section "启动服务"
 shell `
 ./bin/pulsar standalone
+./bin/pulsar-admin topics create persistent://public/default/my-topic
 ./bin/pulsar-admin topics list public/default
 `
 
 section "收发消息"
 shell `
-bin/pulsar-client consume my-topic -s "first-subscription"
-bin/pulsar-client produce my-topic --messages "hello-pulsar"
+./bin/pulsar-client produce my-topic --messages "hello-pulsar"
+./bin/pulsar-client consume my-topic -s "first-subscription"
 `
 
 chapter "client"

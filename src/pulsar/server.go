@@ -11,15 +11,14 @@ import (
 
 type server struct {
 	ice.Code
-	linux  string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.1/apache-pulsar-2.10.1-bin.tar.gz"`
-	source string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.1/apache-pulsar-2.10.1-src.tar.gz"`
-	action string `data:"listTopic,addTopic"`
-
+	linux     string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.2/apache-pulsar-2.10.2-bin.tar.gz"`
+	darwin    string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.2/apache-pulsar-2.10.2-bin.tar.gz"`
+	source    string `data:"https://mirrors.tencent.com/apache/pulsar/pulsar-2.10.2/apache-pulsar-2.10.2-src.tar.gz"`
+	action    string `data:"listTopic,addTopic"`
 	listTopic string `name:"listTopic" help:"主题列表"`
 	addTopic  string `name:"addTopic topic=TASK_AGENT" help:"添加主题"`
-
-	start string `name:"start port" help:"启动"`
-	list  string `name:"list port path auto start install download" help:"服务器"`
+	start     string `name:"start port=10003" help:"启动"`
+	list      string `name:"list port path auto start install" help:"消息队列"`
 }
 
 func (s server) ListTopic(m *ice.Message, arg ...string) {
@@ -58,8 +57,6 @@ func (s server) Start(m *ice.Message, arg ...string) {
 		})
 	})
 }
-func (s server) List(m *ice.Message, arg ...string) {
-	s.Code.List(m, "pulsar", arg...)
-}
+func (s server) List(m *ice.Message, arg ...string) { s.Code.List(m, "pulsar", arg...) }
 
 func init() { ice.CodeCtxCmd(server{}) }
