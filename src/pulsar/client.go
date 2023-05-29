@@ -65,7 +65,7 @@ func (s client) Send(m *ice.Message, arg ...string) {
 	p, e := s.Client(m, msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(TOKEN)).CreateProducer(pulsar.ProducerOptions{Topic: PERSISTENT + msg.Append(TOPIC)})
 	m.Assert(e)
 	if msgid, e := p.Send(context.Background(), &pulsar.ProducerMessage{Key: m.Option(KEYS), Payload: []byte(m.Option(mdb.VALUE))}); !m.Warn(e) {
-		m.Echo(msgid)
+		m.Echo(msgid.String())
 	}
 }
 
