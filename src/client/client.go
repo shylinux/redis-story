@@ -35,7 +35,7 @@ type client struct {
 	info   string `name:"info" help:"信息"`
 	keys   string `name:"keys limit*=100 pattern" help:"列表"`
 	prunes string `name:"prunes limit*=100 pattern" help:"清理"`
-	create string `name:"create sess*=biz host*=localhost port*=10001 password*=demo" help:"连接"`
+	create string `name:"create sess*=biz host*=localhost port*=10002 password*=demo" help:"连接"`
 	list   string `name:"list sess@key auto info keys prunes create stmt:textarea" help:"缓存"`
 }
 
