@@ -9,6 +9,8 @@ import (
 	"shylinux.com/x/icebergs/base/lex"
 	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/tcp"
+	"shylinux.com/x/icebergs/core/chat/macos"
+	"shylinux.com/x/icebergs/core/code"
 	kit "shylinux.com/x/toolkits"
 )
 
@@ -39,6 +41,9 @@ type client struct {
 	list   string `name:"list sess@key auto info keys prunes create stmt:textarea" help:"缓存"`
 }
 
+func (s client) Init(m *ice.Message, arg ...string) {
+	m.Cmd(macos.APPLICATIONS, code.INSTALL, "redis", m.PrefixKey(), mdb.ICON, m.Resource("redis.jpeg"))
+}
 func (s client) Inputs(m *ice.Message, arg ...string) {
 	switch arg[0] {
 	case aaa.SESS:
