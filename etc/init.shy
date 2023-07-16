@@ -5,9 +5,5 @@
 ~web.code
 	binpack insert usr/local/export/
 
-~web.chat.macos
-	applications install "repos" web.code.git.status icon "usr/icons/git.jpg"
-	applications install "compile" web.code.compile icon "usr/icons/go.png"
-
 ~ssh
 	source local.shy

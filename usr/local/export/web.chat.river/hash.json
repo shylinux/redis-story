@@ -1,79 +1,59 @@
 {
-  "644924": {
+  "657d37": {
     "hash": {
-      "386dc0": {
+      "9c073c": {
         "hash": {},
         "list": [
           {
+            "icon": "bi bi-terminal",
             "id": 1,
-            "index": "web.dream",
-            "time": "2023-05-26 14:51:07.055"
-          },
-          {
-            "id": 2,
-            "index": "web.code.mysql.client",
-            "space": "20230511-mysql-story",
-            "time": "2023-05-26 14:51:20.138"
-          },
-          {
-            "id": 3,
-            "index": "web.code.redis.client",
-            "space": "20230511-redis-story",
-            "time": "2023-05-26 14:51:32.040"
-          },
-          {
-            "id": 4,
-            "index": "web.code.docker.client",
-            "space": "20230511-docker-story",
-            "time": "2023-05-26 14:51:45.496"
-          },
-          {
-            "id": 5,
-            "index": "web.code.nginx.client",
-            "space": "20230511-nginx-story",
-            "time": "2023-05-26 14:52:02.393"
-          },
-          {
-            "id": 6,
-            "index": "cli.procinfo",
-            "time": "2023-05-26 15:42:56.202"
+            "index": "web.code.xterm",
+            "time": "2023-06-25 12:49:08.993"
           }
         ],
         "meta": {
-          "count": 6,
-          "name": "client",
+          "count": 1,
+          "icon": "bi bi-terminal",
+          "name": "term",
           "text": "hello",
-          "time": "2023-05-26 14:50:58.189"
-        }
-      },
-      "5d0b2f": {
-        "hash": {},
-        "list": [
-          {
-            "id": 1,
-            "index": "web.wiki.word",
-            "space": "20230511-redis-story",
-            "time": "2023-05-26 14:03:25.091"
-          },
-          {
-            "id": 2,
-            "index": "web.wiki.word",
-            "space": "20230511-mysql-story",
-            "time": "2023-05-26 14:04:43.010"
-          }
-        ],
-        "meta": {
-          "count": 2,
-          "name": "server",
-          "text": "hello",
-          "time": "2023-05-26 14:03:17.509"
+          "time": "2023-06-25 12:48:58.274"
         }
       }
     },
     "meta": {
-      "name": "server",
+      "icon": "bi bi-terminal",
+      "name": "term",
       "text": "hello",
-      "time": "2023-05-26 14:03:10.433",
+      "time": "2023-06-25 12:48:52.175",
+      "type": "tech"
+    }
+  },
+  "71a871": {
+    "hash": {
+      "ab14d0": {
+        "hash": {},
+        "list": [
+          {
+            "icon": "bi bi-calendar-day",
+            "id": 1,
+            "index": "web.team.plan",
+            "time": "2023-06-24 20:17:15.170"
+          }
+        ],
+        "meta": {
+          "count": 1,
+          "icon": "bi bi-calendar-day",
+          "name": "plan",
+          "text": "hello",
+          "time": "2023-06-24 20:17:04.053"
+        }
+      }
+    },
+    "meta": {
+      "icon": "bi bi-calendar-day",
+      "name": "plan",
+      "text": "hello",
+      "time": "2023-06-24 20:17:00.837",
       "type": "tech"
     }
   }

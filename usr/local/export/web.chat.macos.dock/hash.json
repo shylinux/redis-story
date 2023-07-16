@@ -1,61 +1,67 @@
 {
-  "2268e6": {
+  "5bd63f": {
+    "meta": {
+      "icon": "/require/usr/icons/go.png",
+      "index": "web.code.compile",
+      "name": "compile",
+      "time": "2023-07-12 10:16:45.614"
+    }
+  },
+  "7b06e7": {
+    "meta": {
+      "icon": "usr/icons/Safari.png",
+      "index": "web.chat.iframe",
+      "name": "Safari",
+      "time": "2023-05-24 15:32:00.613"
+    }
+  },
+  "955f91": {
+    "meta": {
+      "icon": "/require/usr/icons/Mission Control.png",
+      "index": "web.dream",
+      "name": "dream",
+      "time": "2023-07-12 10:16:45.613"
+    }
+  },
+  "99baca": {
+    "meta": {
+      "icon": "usr/icons/vimer.png",
+      "index": "web.code.vimer",
+      "name": "vimer",
+      "time": "2023-05-24 15:32:00.615"
+    }
+  },
+  "d5df43": {
+    "meta": {
+      "icon": "usr/icons/Finder.png",
+      "index": "web.chat.macos.finder",
+      "name": "Finder",
+      "time": "2023-05-24 15:32:00.612"
+    }
+  },
+  "db2eaf": {
     "meta": {
       "_target": [],
       "icon": "/require/src/client/redis.jpeg",
       "index": "web.code.redis.client",
       "name": "redis",
-      "time": "2023-07-10 22:02:59.756"
+      "time": "2023-07-16 16:42:32.328"
     }
   },
-  "53c9a7": {
-    "meta": {
-      "icon": "usr/icons/Safari.png",
-      "index": "web.chat.iframe",
-      "name": "Safari",
-      "time": "2023-05-11 13:45:16.410"
-    }
-  },
-  "6afa04": {
-    "meta": {
-      "_target": [],
-      "icon": "/require/usr/icons/git.jpg",
-      "index": "web.code.git.status",
-      "name": "repos",
-      "time": "2023-07-16 11:03:35.582"
-    }
-  },
-  "747ab5": {
+  "e615d4": {
     "meta": {
       "icon": "usr/icons/Terminal.png",
       "index": "web.code.xterm",
       "name": "Terminal",
-      "time": "2023-05-11 13:45:16.410"
+      "time": "2023-05-24 15:32:00.614"
     }
   },
-  "7de218": {
+  "eac248": {
     "meta": {
-      "icon": "usr/icons/vimer.png",
-      "index": "web.code.vimer",
-      "name": "vimer",
-      "time": "2023-05-11 13:45:16.410"
-    }
-  },
-  "87e9b0": {
-    "meta": {
-      "icon": "usr/icons/Finder.png",
-      "index": "web.chat.macos.finder",
-      "name": "Finder",
-      "time": "2023-05-11 13:45:16.409"
-    }
-  },
-  "bc7283": {
-    "meta": {
-      "_target": [],
-      "icon": "/require/usr/icons/go.png",
-      "index": "web.code.compile",
-      "name": "compile",
-      "time": "2023-07-10 21:21:14.981"
+      "icon": "/require/usr/icons/git.jpg",
+      "index": "web.code.git.status",
+      "name": "status",
+      "time": "2023-07-15 14:31:26.486"
     }
   }
 }
