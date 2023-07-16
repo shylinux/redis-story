@@ -14,4 +14,8 @@ require (
 	shylinux.com/x/toolkits v0.7.7
 )
 
-require github.com/apache/pulsar-client-go v0.10.0
+require (
+	github.com/99designs/keyring v1.2.1
+	github.com/apache/pulsar-client-go v0.10.0
+	github.com/sirupsen/logrus v1.6.0
+)
