@@ -1,10 +1,28 @@
 {
+  "2268e6": {
+    "meta": {
+      "_target": [],
+      "icon": "/require/src/client/redis.jpeg",
+      "index": "web.code.redis.client",
+      "name": "redis",
+      "time": "2023-07-10 22:02:59.756"
+    }
+  },
   "53c9a7": {
     "meta": {
       "icon": "usr/icons/Safari.png",
       "index": "web.chat.iframe",
       "name": "Safari",
       "time": "2023-05-11 13:45:16.410"
+    }
+  },
+  "6afa04": {
+    "meta": {
+      "_target": [],
+      "icon": "/require/usr/icons/git.jpg",
+      "index": "web.code.git.status",
+      "name": "repos",
+      "time": "2023-07-16 11:03:35.582"
     }
   },
   "747ab5": {
@@ -29,6 +47,15 @@
       "index": "web.chat.macos.finder",
       "name": "Finder",
       "time": "2023-05-11 13:45:16.409"
+    }
+  },
+  "bc7283": {
+    "meta": {
+      "_target": [],
+      "icon": "/require/usr/icons/go.png",
+      "index": "web.code.compile",
+      "name": "compile",
+      "time": "2023-07-10 21:21:14.981"
     }
   }
 }
