@@ -10,12 +10,11 @@ replace (
 
 require (
 	shylinux.com/x/ice v1.3.11
-	shylinux.com/x/icebergs v1.5.16
-	shylinux.com/x/toolkits v0.7.8
+	shylinux.com/x/icebergs v1.5.18
+	shylinux.com/x/toolkits v0.7.9
 )
 
 require (
-	github.com/99designs/keyring v1.2.1
 	github.com/apache/pulsar-client-go v0.10.0
-	github.com/sirupsen/logrus v1.6.0
+	github.com/segmentio/kafka-go v0.4.42
 )
