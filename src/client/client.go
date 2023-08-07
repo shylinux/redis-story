@@ -50,6 +50,7 @@ func (s client) Inputs(m *ice.Message, arg ...string) {
 		s.List(m).Cut(arg[0])
 	case tcp.PORT:
 		m.Cmdy(tcp.SERVER).Cut("port,status,time")
+		m.Push(arg[0], "6379")
 	default:
 		s.Hash.Inputs(m, arg...)
 	}

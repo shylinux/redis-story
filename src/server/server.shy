@@ -28,3 +28,6 @@ get hi
 set hi hello
 get hi
 `
+shell `
+config set requirepass demo
+`
