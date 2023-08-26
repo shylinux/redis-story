@@ -7,6 +7,15 @@
       "time": "2023-05-24 15:32:00.605"
     }
   },
+  "4b17d6": {
+    "meta": {
+      "_target": [],
+      "icon": "/require/src/client/redis.png",
+      "index": "web.code.redis.client",
+      "name": "redis",
+      "time": "2023-08-26 22:15:31.283"
+    }
+  },
   "63beed": {
     "meta": {
       "icon": "usr/icons/Photos.png",
