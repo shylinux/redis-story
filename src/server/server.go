@@ -31,7 +31,7 @@ func (s server) Bench(m *ice.Message, arg ...string) {
 	defer m.ProcessInner()
 	for _, k := range kit.Split(kit.Select(m.Option("cmdList"), "get,set")) {
 		begin := time.Now()
-		if s, e := client.Bench(kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ice.FS + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []string, res ice.Any) {
+		if s, e := client.Bench(m.FormatTaskMeta(), kit.Int64(m.Option("nconn")), kit.Int64(m.Option("nreq")), []string{tcp.LOCALHOST + ice.FS + m.Option(tcp.PORT)}, []string{k}, func(cmd string, arg []string, res ice.Any) {
 			// 检查结果
 		}); m.Assert(e) {
 			m.Push("time", begin)

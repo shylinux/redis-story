@@ -38,7 +38,7 @@ var trans = map[string]func(i int64) []string{
 }
 var ErrNotFoundCmd = errors.New("not found cmd")
 
-func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd string, arg []string, res ice.Any)) (*Stat, error) {
+func Bench(meta task.Meta, nconn, nreq int64, hosts []string, cmds []string, check func(cmd string, arg []string, res ice.Any)) (*Stat, error) {
 	s := &Stat{BeginTime: time.Now()}
 	defer func() {
 		if s.EndTime = time.Now(); s.BeginTime != s.EndTime {
@@ -52,7 +52,7 @@ func Bench(nconn, nreq int64, hosts []string, cmds []string, check func(cmd stri
 	rp := NewRedisPool(hosts[0], "")
 	tp := task.New(conf.Sub(task.TASK))
 	defer tp.Close()
-	tp.WaitN(int(nconn), func(task *task.Task, lock *task.Lock) error {
+	tp.WaitN(meta, int(nconn), func(task *task.Task, lock *task.Lock) error {
 		var nerr, nok int64
 		defer func() {
 			atomic.AddInt64(&s.NReq, nreq)
