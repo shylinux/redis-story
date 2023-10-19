@@ -33,7 +33,6 @@
   },
   "e20c05": {
     "meta": {
-      "_target": [],
       "icon": "/require/usr/icons/git.png?pod=20230511-redis-story",
       "index": "web.code.git.status",
       "name": "status",

@@ -2,11 +2,12 @@ chapter "server"
 field "服务器" web.code.redis.server
 
 section "编译安装"
-shell `
+shell centos `
 yum install -y wget make gcc
 
-wget http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz
+curl -O http://mirrors.tencent.com/macports/distfiles/redis/redis-5.0.8.tar.gz
 tar xvf redis-5.0.8.tar.gz && cd redis-5.0.8
+
 # make MALLOC=libc
 make -j8 && make PREFIX=$PWD/_install install
 `

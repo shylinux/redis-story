@@ -9,7 +9,6 @@
   },
   "4b17d6": {
     "meta": {
-      "_target": [],
       "icon": "/require/src/client/redis.png",
       "index": "web.code.redis.client",
       "name": "redis",

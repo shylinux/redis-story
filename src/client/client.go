@@ -36,7 +36,7 @@ type client struct {
 	keys   string `name:"keys limit*=100 pattern" help:"列表"`
 	prunes string `name:"prunes limit*=100 pattern" help:"清理"`
 	create string `name:"create sess*=biz host*=localhost port*=10002 password*=demo" help:"连接"`
-	list   string `name:"list sess@key auto info keys prunes create stmt:textarea" help:"缓存" icon:"redis.png"`
+	list   string `name:"list sess@key stmt auto" help:"缓存" icon:"redis.png"`
 }
 
 func (s client) Inputs(m *ice.Message, arg ...string) {
@@ -65,7 +65,7 @@ func (s client) Info(m *ice.Message, arg ...string) {
 			kit.Value(data, kit.Keys(domain, ls[0]), ls[1])
 		}
 	}
-	m.SetAppend().SetResult().PushDetail(data).StatusTimeCount()
+	m.SetAppend().SetResult().PushDetail(data)
 }
 func (s client) Keys(m *ice.Message, arg ...string) {
 	m.OptionCB("", func(redis *redis) {
@@ -114,10 +114,11 @@ func (s client) Prunes(m *ice.Message, arg ...string) {
 }
 func (s client) List(m *ice.Message, arg ...string) *ice.Message {
 	if s.Hash.List(m, arg...); len(arg) < 1 || arg[0] == "" {
-		m.Sort(aaa.SESS).PushAction(s.Xterm, s.Remove)
+		m.Sort(aaa.SESS).PushAction(s.Xterm, s.Remove).Action(s.Create, s.Prunes)
 		return m // 连接列表
 	} else if len(arg) < 2 || arg[1] == "" {
 		m.PushAction(s.Xterm, s.Remove).EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
+		m.Action(s.Keys, s.Info)
 		return m // 连接详情
 	}
 	msg := m.Spawn().Copy(m.Message)
