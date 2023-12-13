@@ -1,50 +1,50 @@
 {
-  "5bd63f": {
-    "meta": {
-      "icon": "/require/usr/icons/go.png",
-      "index": "web.code.compile",
-      "name": "compile",
-      "time": "2023-07-12 10:16:45.614"
-    }
-  },
-  "7b06e7": {
-    "meta": {
-      "icon": "usr/icons/Safari.png",
-      "index": "web.chat.iframe",
-      "name": "Safari",
-      "time": "2023-05-24 15:32:00.613"
-    }
-  },
-  "99baca": {
-    "meta": {
-      "icon": "usr/icons/vimer.png",
-      "index": "web.code.vimer",
-      "name": "vimer",
-      "time": "2023-05-24 15:32:00.615"
-    }
-  },
-  "d5df43": {
-    "meta": {
-      "icon": "usr/icons/Finder.png",
-      "index": "web.chat.macos.finder",
-      "name": "Finder",
-      "time": "2023-05-24 15:32:00.612"
-    }
-  },
-  "e20c05": {
-    "meta": {
-      "icon": "/require/usr/icons/git.png?pod=20230511-redis-story",
-      "index": "web.code.git.status",
-      "name": "status",
-      "time": "2023-08-26 22:23:21.161"
-    }
-  },
-  "e615d4": {
+  "5c7518": {
     "meta": {
       "icon": "usr/icons/Terminal.png",
       "index": "web.code.xterm",
       "name": "Terminal",
-      "time": "2023-05-24 15:32:00.614"
+      "time": "2023-12-13 12:00:51.866"
+    }
+  },
+  "80b0a9": {
+    "meta": {
+      "icon": "usr/icons/Safari.png",
+      "index": "web.chat.iframe",
+      "name": "Safari",
+      "time": "2023-12-13 12:00:51.866"
+    }
+  },
+  "8d7c14": {
+    "meta": {
+      "icon": "usr/icons/go.png",
+      "index": "web.code.compile",
+      "name": "go",
+      "time": "2023-12-13 12:00:51.866"
+    }
+  },
+  "f10ab4": {
+    "meta": {
+      "icon": "usr/icons/vimer.png",
+      "index": "web.code.vimer",
+      "name": "vimer",
+      "time": "2023-12-13 12:00:51.867"
+    }
+  },
+  "f5c4f6": {
+    "meta": {
+      "icon": "usr/icons/Finder.png",
+      "index": "web.chat.macos.finder",
+      "name": "Finder",
+      "time": "2023-12-13 12:00:51.866"
+    }
+  },
+  "f84b03": {
+    "meta": {
+      "icon": "usr/icons/git.png",
+      "index": "web.code.git.status",
+      "name": "git",
+      "time": "2023-12-13 12:00:51.866"
     }
   }
 }

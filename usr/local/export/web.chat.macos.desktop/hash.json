@@ -1,43 +1,42 @@
 {
-  "366aa0": {
+  "8c0012": {
     "meta": {
       "icon": "usr/icons/Books.png",
       "index": "web.wiki.word",
       "name": "Books",
-      "time": "2023-05-24 15:32:00.605"
+      "time": "2023-12-13 12:00:51.864"
     }
   },
-  "4b17d6": {
-    "meta": {
-      "icon": "/require/src/client/redis.png",
-      "index": "web.code.redis.client",
-      "name": "redis",
-      "time": "2023-08-26 22:15:31.283"
-    }
-  },
-  "63beed": {
+  "8fbf24": {
     "meta": {
       "icon": "usr/icons/Photos.png",
       "index": "web.wiki.feel",
       "name": "Photos",
-      "time": "2023-05-24 15:32:00.607"
+      "time": "2023-12-13 12:00:51.865"
     }
   },
-  "680cac": {
+  "95c03c": {
+    "meta": {
+      "icon": "usr/icons/Calendar.png",
+      "index": "web.team.plan",
+      "name": "Calendar",
+      "time": "2023-12-13 12:00:51.865"
+    }
+  },
+  "c63b2c": {
     "meta": {
       "icon": "usr/icons/Grapher.png",
       "index": "web.wiki.draw",
       "name": "Grapher",
-      "time": "2023-05-24 15:32:00.608"
+      "time": "2023-12-13 12:00:51.865"
     }
   },
-  "dfd878": {
+  "f0caa2": {
     "meta": {
-      "args": "month",
-      "icon": "usr/icons/Calendar.png",
-      "index": "web.team.plan",
-      "name": "Calendar",
-      "time": "2023-05-24 15:32:00.609"
+      "icon": "src/client/redis.png",
+      "index": "web.code.redis.client",
+      "name": "redis",
+      "time": "2023-12-13 12:00:52.008"
     }
   }
 }
