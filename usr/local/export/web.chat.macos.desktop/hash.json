@@ -1,4 +1,28 @@
 {
+  "3a31f7": {
+    "meta": {
+      "icon": "usr/icons/Calendar.png",
+      "index": "web.team.plan",
+      "name": "Calendar",
+      "time": "2024-01-11 00:20:48.134"
+    }
+  },
+  "5f49e4": {
+    "meta": {
+      "icon": "usr/icons/Grapher.png",
+      "index": "web.wiki.draw",
+      "name": "Grapher",
+      "time": "2024-01-11 00:20:48.133"
+    }
+  },
+  "6dce16": {
+    "meta": {
+      "icon": "usr/icons/Photos.png",
+      "index": "web.wiki.feel",
+      "name": "Photos",
+      "time": "2024-01-11 00:20:48.133"
+    }
+  },
   "8c0012": {
     "meta": {
       "icon": "usr/icons/Books.png",
@@ -37,6 +61,14 @@
       "index": "web.code.redis.client",
       "name": "redis",
       "time": "2023-12-13 12:00:52.008"
+    }
+  },
+  "f27361": {
+    "meta": {
+      "icon": "usr/icons/Books.png",
+      "index": "web.wiki.word",
+      "name": "Books",
+      "time": "2024-01-11 00:20:48.132"
     }
   }
 }
