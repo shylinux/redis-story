@@ -1,3 +1,4 @@
+src/binpack_usr.go
 src/binpack.go
 src/version.go
 etc/local.shy
