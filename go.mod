@@ -9,9 +9,9 @@ replace (
 )
 
 require (
-	shylinux.com/x/ice v1.4.4
-	shylinux.com/x/icebergs v1.8.4
-	shylinux.com/x/toolkits v0.8.4
+	shylinux.com/x/ice v1.4.5
+	shylinux.com/x/icebergs v1.8.5
+	shylinux.com/x/toolkits v1.0.0
 )
 
 require (
