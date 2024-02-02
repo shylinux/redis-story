@@ -121,7 +121,7 @@ func (s client) List(m *ice.Message, arg ...string) *ice.Message {
 		m.Action(s.Keys, s.Info)
 		return m // 连接详情
 	}
-	msg := m.Spawn().Copy(m.Message)
+	msg := m.Spawn().Copy(m)
 	rp := s.Hash.Target(m, arg[0], func() ice.Any {
 		return NewRedisPool(kit.Format("%s:%s", msg.Append(tcp.HOST), msg.Append(tcp.PORT)), msg.Append(aaa.PASSWORD))
 	}).(*RedisPool)
