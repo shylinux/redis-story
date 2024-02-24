@@ -1,5 +1,5 @@
 ~web
-	config serve main /chat/cmd/desktop
 	config space main desktop
+	config serve main desktop
 ~ssh
 	source local.shy

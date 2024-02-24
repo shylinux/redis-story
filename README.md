@@ -1,8 +1,8 @@
 # Redis-Story
-Redis-Story 通过集群化、模块化、自动化的方式，用一个 20M 的程序文件，就可以在各种设备上，一键搭起完整的云计算服务与云研发环境。
+Redis-Story 通过模块化、集群化、自动化的方式，只用一个 20M 大小的程序文件，就可以在各种设备上，一键启动完整的云计算服务与云研发环境。
 
-## 安装
-### 下载编译
+## 源码安装
+### 克隆编译
 ```sh
 git clone https://shylinux.com/x/redis-story
 cd redis-story; source etc/miss.sh
@@ -17,4 +17,3 @@ ish_miss_serve
 ```sh
 open http://localhost:9020
 ```
-
