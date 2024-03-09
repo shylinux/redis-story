@@ -1,5 +1,9 @@
 ~web
-	config space main desktop
-	config serve main desktop
+	space main desktop
+	serve main desktop
+~web.code
+	binpack insert usr/icons/
+~web.code.git
+	config service cmd git
 ~ssh
 	source local.shy
