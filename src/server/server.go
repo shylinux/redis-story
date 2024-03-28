@@ -27,7 +27,7 @@ func (s server) Init(m *ice.Message, arg ...string) {
 	code.PackageCreate(m.Message, nfs.SOURCE, "redis", "", "src/redis.png", s.Link(m))
 }
 func (s server) Build(m *ice.Message, arg ...string) {
-	s.Code.Build(m, "", func(p string) {})
+	s.Code.Build(m, "", "MALLOC=libc")
 	m.Cmdy(nfs.DIR, path.Join(s.Path(m, ""), "_install/bin/redis-server"))
 }
 func (s server) Start(m *ice.Message, arg ...string) {
