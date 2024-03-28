@@ -6,7 +6,9 @@ import (
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/aaa"
+	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
+	"shylinux.com/x/icebergs/core/code"
 	"shylinux.com/x/redis-story/src/client"
 	kit "shylinux.com/x/toolkits"
 )
@@ -21,7 +23,13 @@ type server struct {
 	list  string `name:"list port path auto start build download" help:"缓存"`
 }
 
-func (s server) Build(m *ice.Message, arg ...string) { s.Code.Build(m, "", func(p string) {}) }
+func (s server) Init(m *ice.Message, arg ...string) {
+	code.PackageCreate(m.Message, nfs.SOURCE, "redis", "", "src/redis.png", s.Link(m))
+}
+func (s server) Build(m *ice.Message, arg ...string) {
+	s.Code.Build(m, "", func(p string) {})
+	m.Cmdy(nfs.DIR, path.Join(s.Path(m, ""), "_install/bin/redis-server"))
+}
 func (s server) Start(m *ice.Message, arg ...string) {
 	s.Code.Start(m, "", "bin/redis-server", func(p string) []string {
 		return []string{"--port", path.Base(p), "--requirepass", m.Option(aaa.PASSWORD)}

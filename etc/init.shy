@@ -1,5 +1,5 @@
 ~web
-	config space icons "src/client/redis.png"
+	config space icons "src/redis.png"
 	space main desktop
 	serve main desktop
 ~ssh
