@@ -24,7 +24,7 @@ type server struct {
 }
 
 func (s server) Init(m *ice.Message, arg ...string) {
-	code.PackageCreate(m.Message, nfs.SOURCE, "redis", "", "src/redis.png", s.Link(m))
+	code.PackageCreate(m.Message, nfs.SOURCE, "redis", "", "redis.png", s.Link(m))
 }
 func (s server) Build(m *ice.Message, arg ...string) {
 	s.Code.Build(m, "", "MALLOC=libc")
