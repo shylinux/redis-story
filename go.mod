@@ -3,8 +3,8 @@ module shylinux.com/x/redis-story
 go 1.13
 
 require (
-	shylinux.com/x/ice v1.5.5
-	shylinux.com/x/icebergs v1.9.5
+	shylinux.com/x/ice v1.5.6
+	shylinux.com/x/icebergs v1.9.6
 	shylinux.com/x/toolkits v1.0.5
 )
 
