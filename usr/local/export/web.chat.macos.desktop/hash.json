@@ -55,14 +55,6 @@
       "time": "2023-12-13 12:00:51.865"
     }
   },
-  "f0caa2": {
-    "meta": {
-      "icon": "src/client/redis.png",
-      "index": "web.code.redis.client",
-      "name": "redis",
-      "time": "2023-12-13 12:00:52.008"
-    }
-  },
   "f27361": {
     "meta": {
       "icon": "usr/icons/Books.png",
