@@ -1,66 +1,34 @@
 {
-  "3a31f7": {
-    "meta": {
-      "icon": "usr/icons/Calendar.png",
-      "index": "web.team.plan",
-      "name": "Calendar",
-      "time": "2024-01-11 00:20:48.134"
-    }
-  },
-  "5f49e4": {
-    "meta": {
-      "icon": "usr/icons/Grapher.png",
-      "index": "web.wiki.draw",
-      "name": "Grapher",
-      "time": "2024-01-11 00:20:48.133"
-    }
-  },
-  "6dce16": {
+  "27c33f": {
     "meta": {
       "icon": "usr/icons/Photos.png",
       "index": "web.wiki.feel",
       "name": "Photos",
-      "time": "2024-01-11 00:20:48.133"
+      "time": "2024-04-11 21:56:40.297"
     }
   },
-  "8c0012": {
+  "288e5e": {
     "meta": {
-      "icon": "usr/icons/Books.png",
-      "index": "web.wiki.word",
-      "name": "Books",
-      "time": "2023-12-13 12:00:51.864"
+      "icon": "usr/icons/Messages.png",
+      "index": "web.chat.message",
+      "name": "Messages",
+      "time": "2024-04-11 21:56:40.298"
     }
   },
-  "8fbf24": {
-    "meta": {
-      "icon": "usr/icons/Photos.png",
-      "index": "web.wiki.feel",
-      "name": "Photos",
-      "time": "2023-12-13 12:00:51.865"
-    }
-  },
-  "95c03c": {
+  "74993c": {
     "meta": {
       "icon": "usr/icons/Calendar.png",
       "index": "web.team.plan",
       "name": "Calendar",
-      "time": "2023-12-13 12:00:51.865"
+      "time": "2024-04-11 21:56:40.298"
     }
   },
-  "c63b2c": {
-    "meta": {
-      "icon": "usr/icons/Grapher.png",
-      "index": "web.wiki.draw",
-      "name": "Grapher",
-      "time": "2023-12-13 12:00:51.865"
-    }
-  },
-  "f27361": {
+  "8efdd7": {
     "meta": {
       "icon": "usr/icons/Books.png",
       "index": "web.wiki.word",
       "name": "Books",
-      "time": "2024-01-11 00:20:48.132"
+      "time": "2024-04-11 21:56:40.297"
     }
   }
 }
