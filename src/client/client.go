@@ -1,6 +1,7 @@
 package client
 
 import (
+	"path"
 	"strings"
 	"time"
 
@@ -26,17 +27,17 @@ const (
 )
 
 type client struct {
-	ice.Code
 	ice.Hash
-	short string `data:"sess"`
-	field string `data:"time,sess,host,port"`
-
-	del    string `name:"del" help:"删除"`
-	info   string `name:"info" help:"信息"`
-	keys   string `name:"keys limit*=100 pattern" help:"列表"`
-	prunes string `name:"prunes limit*=100 pattern" help:"清理"`
-	create string `name:"create sess*=biz host*=localhost port*=10002 password*=demo" help:"连接"`
+	ice.Code
+	export string `data:"true"`
+	short  string `data:"sess"`
+	field  string `data:"time,sess,host,port"`
+	create string `name:"create sess*=biz host*=localhost port*=10001 password*=demo" help:"连接"`
 	list   string `name:"list sess@key stmt auto" help:"缓存" icon:"redis.png"`
+	prunes string `name:"prunes limit*=100 pattern" help:"清理"`
+	keys   string `name:"keys limit*=100 pattern" help:"列表"`
+	info   string `name:"info" help:"信息"`
+	del    string `name:"del" help:"删除"`
 }
 
 func (s client) Inputs(m *ice.Message, arg ...string) {
@@ -44,11 +45,47 @@ func (s client) Inputs(m *ice.Message, arg ...string) {
 	case aaa.SESS:
 		s.List(m).Cut(arg[0])
 	case tcp.PORT:
-		m.Cmdy(tcp.SERVER).Cut("port,status,time")
-		m.Push(arg[0], "6379")
+		m.Cmdy(tcp.SERVER).Cut("port,status,time").Push(arg[0], "6379")
 	default:
 		s.Hash.Inputs(m, arg...)
 	}
+}
+func (s client) List(m *ice.Message, arg ...string) *ice.Message {
+	if s.Hash.List(m, arg...); len(arg) < 1 || arg[0] == "" {
+		m.PushAction(s.Xterm, s.Remove).Action(s.Create, s.Prunes).Sort(aaa.SESS)
+		return m // 连接列表
+	} else if len(arg) < 2 || arg[1] == "" {
+		m.PushAction(s.Xterm, s.Remove).EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
+		m.Action(s.Keys, s.Info)
+		return m // 连接详情
+	}
+	msg := m.Spawn().Copy(m)
+	rp := s.Hash.Target(m, arg[0], func() ice.Any {
+		return NewRedisPool(kit.Format("%s:%s", msg.Append(tcp.HOST), msg.Append(tcp.PORT)), msg.Append(aaa.PASSWORD))
+	}).(*RedisPool)
+	r := rp.Get()
+	defer rp.Put(r)
+	switch m.SetAppend(); cb := m.OptionCB("").(type) {
+	case func(*redis):
+		cb(r)
+		return m
+	}
+	for _, line := range strings.Split(strings.TrimSpace(strings.Join(arg[1:], ice.SP)), ice.NL) {
+		m.Push(mdb.TIME, kit.Format(time.Now())).Push(ice.CMD, line)
+		cmds := kit.Split(line)
+		if res, err := r.Do(cmds[0], cmds[1:]...); err == nil {
+			switch cb := m.OptionCB("").(type) {
+			case func(ice.Any):
+				cb(res)
+			default:
+				m.Push(ice.ERR, "").Push(ice.RES, kit.Format(res)).Echo("%v", res)
+			}
+		} else {
+			m.Push(ice.ERR, kit.Format(err)).Push(ice.RES, "")
+		}
+	}
+	kit.If(m.Length() == 1 && m.Append(ice.ERR) == "", func() { m.SetAppend() })
+	return m
 }
 func (s client) Del(m *ice.Message, arg ...string) {
 	s.List(m, m.Option(aaa.SESS), DEL, m.Option(mdb.KEY))
@@ -112,46 +149,10 @@ func (s client) Prunes(m *ice.Message, arg ...string) {
 	})
 	s.List(m, m.Option(aaa.SESS), KEYS)
 }
-func (s client) List(m *ice.Message, arg ...string) *ice.Message {
-	if s.Hash.List(m, arg...); len(arg) < 1 || arg[0] == "" {
-		m.Sort(aaa.SESS).PushAction(s.Xterm, s.Remove).Action(s.Create, s.Prunes)
-		return m // 连接列表
-	} else if len(arg) < 2 || arg[1] == "" {
-		m.PushAction(s.Xterm, s.Remove).EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
-		m.Action(s.Keys, s.Info)
-		return m // 连接详情
-	}
-	msg := m.Spawn().Copy(m)
-	rp := s.Hash.Target(m, arg[0], func() ice.Any {
-		return NewRedisPool(kit.Format("%s:%s", msg.Append(tcp.HOST), msg.Append(tcp.PORT)), msg.Append(aaa.PASSWORD))
-	}).(*RedisPool)
-	r := rp.Get()
-	defer rp.Put(r)
-	switch m.SetAppend(); cb := m.OptionCB("").(type) {
-	case func(*redis):
-		cb(r)
-		return m
-	}
-	for _, line := range strings.Split(strings.TrimSpace(strings.Join(arg[1:], ice.SP)), ice.NL) {
-		m.Push(mdb.TIME, kit.Format(time.Now())).Push(ice.CMD, line)
-		cmds := kit.Split(line)
-		if res, err := r.Do(cmds[0], cmds[1:]...); err == nil {
-			switch cb := m.OptionCB("").(type) {
-			case func(ice.Any):
-				cb(res)
-			default:
-				m.Push(ice.ERR, "").Push(ice.RES, kit.Format(res)).Echo("%v", res)
-			}
-		} else {
-			m.Push(ice.ERR, kit.Format(err)).Push(ice.RES, "")
-		}
-	}
-	kit.If(m.Length() == 1 && m.Append(ice.ERR) == "", func() { m.SetAppend() })
-	return m
-}
 func (s client) Xterm(m *ice.Message, arg ...string) {
 	msg := s.List(m.Spawn(), m.Option(aaa.SESS))
-	s.Code.Xterm(m, "", []string{mdb.TYPE, kit.Format("%s -h %s -p %s -a %s", kit.Path(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"), msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD))}, arg...)
+	s.Code.Xterm(m, kit.Keys("redis", msg.Append(aaa.SESS)), kit.Format("%s -h %s -p %s -a %s",
+		path.Join(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"), msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
 }
 
 func init() { ice.CodeModCmd(client{}) }

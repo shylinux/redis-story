@@ -9,4 +9,6 @@ import (
 	_ "shylinux.com/x/redis-story/src/server"
 )
 
+func init() { ice.Info.NodeIcon = "src/server/redis.png" }
+
 func main() { print(ice.Run()) }

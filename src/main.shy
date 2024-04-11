@@ -6,4 +6,3 @@ refer `
 `
 source server/server.shy
 source client/client.shy
-source pulsar/pulsar.shy
