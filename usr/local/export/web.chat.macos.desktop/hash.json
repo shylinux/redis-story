@@ -1,34 +1,42 @@
 {
-  "27c33f": {
+  "8cfe1b": {
     "meta": {
       "icon": "usr/icons/Photos.png",
       "index": "web.wiki.feel",
       "name": "Photos",
-      "time": "2024-04-11 21:56:40.297"
+      "time": "2024-04-15 22:10:01.414"
     }
   },
-  "288e5e": {
+  "9adb93": {
     "meta": {
       "icon": "usr/icons/Messages.png",
       "index": "web.chat.message",
       "name": "Messages",
-      "time": "2024-04-11 21:56:40.298"
+      "time": "2024-04-15 22:10:01.417"
     }
   },
-  "74993c": {
+  "b8cbf6": {
     "meta": {
       "icon": "usr/icons/Calendar.png",
       "index": "web.team.plan",
       "name": "Calendar",
-      "time": "2024-04-11 21:56:40.298"
+      "time": "2024-04-15 22:10:01.415"
     }
   },
-  "8efdd7": {
+  "ca64c0": {
     "meta": {
       "icon": "usr/icons/Books.png",
       "index": "web.wiki.word",
       "name": "Books",
-      "time": "2024-04-11 21:56:40.297"
+      "time": "2024-04-15 22:10:01.413"
+    }
+  },
+  "e8b664": {
+    "meta": {
+      "icon": "src/client/redis.png",
+      "index": "web.code.redis.studio",
+      "name": "redis",
+      "time": "2024-04-17 00:47:36.310"
     }
   }
 }

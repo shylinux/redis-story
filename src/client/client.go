@@ -7,93 +7,100 @@ import (
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/aaa"
-	"shylinux.com/x/icebergs/base/lex"
 	"shylinux.com/x/icebergs/base/mdb"
+	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
 	kit "shylinux.com/x/toolkits"
 )
 
 const (
 	INFO = "INFO"
-	KEYS = "KEYS"
-	DEL  = "DEL"
 )
 const (
+	REDIS  = "redis"
 	STRING = "string"
 	HASH   = "hash"
 	LIST   = "list"
 	ZSET   = "zset"
-	SET    = "set"
 )
 
 type client struct {
 	ice.Hash
-	ice.Code
-	export string `data:"true"`
-	short  string `data:"sess"`
-	field  string `data:"time,sess,host,port"`
-	create string `name:"create sess*=biz host*=localhost port*=10001 password*=demo" help:"连接"`
-	list   string `name:"list sess@key stmt auto" help:"缓存" icon:"redis.png"`
-	prunes string `name:"prunes limit*=100 pattern" help:"清理"`
-	keys   string `name:"keys limit*=100 pattern" help:"列表"`
-	info   string `name:"info" help:"信息"`
-	del    string `name:"del" help:"删除"`
+	export  string `data:"true"`
+	short   string `data:"sess"`
+	field   string `data:"time,sess,host,port,role,master,save,appendonly,maxclients,maxmemory"`
+	create  string `name:"create sess*=biz host*=localhost port*=10001 password*=root"`
+	list    string `name:"list sess auto"`
+	prunes  string `name:"prunes limit*=100 pattern"`
+	keys    string `name:"keys limit*=100 pattern"`
+	slaveOf string `name:"slaveOf to*" icon:"bi bi-copy"`
 }
 
 func (s client) Inputs(m *ice.Message, arg ...string) {
-	switch arg[0] {
-	case aaa.SESS:
-		s.List(m).Cut(arg[0])
+	kit.If(arg[0] == nfs.TO, func() { arg[0] = aaa.SESS })
+	if arg[0] == aaa.SESS {
+		m.Cmdy("").Cut(aaa.SESS, tcp.HOST, tcp.PORT)
+		return
+	}
+	switch s.Hash.Inputs(m, arg...); arg[0] {
 	case tcp.PORT:
-		m.Cmdy(tcp.SERVER).Cut("port,status,time").Push(arg[0], "6379")
-	default:
-		s.Hash.Inputs(m, arg...)
+		m.Push(arg[0], "6379")
 	}
 }
-func (s client) List(m *ice.Message, arg ...string) *ice.Message {
+func (s client) Scan(m *ice.Message, arg ...string) {
+	list := map[string]string{}
+	m.Cmd("").Table(func(value ice.Maps) {
+		list[tcp.HostPort(value[tcp.HOST], value[tcp.PORT])] = value[aaa.SESS]
+	}).GoToastTable(aaa.SESS, func(value ice.Maps) {
+		msg := m.Cmd(configs{}, value[aaa.SESS])
+		data := s.cmdInfo(m, value[aaa.SESS])
+		get := func(key string) string { return kit.Format(kit.Value(data, "Replication."+key)) }
+		s.Hash.Modify(m, kit.Simple(aaa.SESS, value[aaa.SESS],
+			aaa.ROLE, get(aaa.ROLE), "master", list[tcp.HostPort(get("master_host"), get("master_port"))],
+			msg.AppendSimple("save,appendonly,maxclients,maxmemory"),
+		)...)
+	})
+}
+func (s client) List(m *ice.Message, arg ...string) {
 	if s.Hash.List(m, arg...); len(arg) < 1 || arg[0] == "" {
-		m.PushAction(s.Xterm, s.Remove).Action(s.Create, s.Prunes).Sort(aaa.SESS)
-		return m // 连接列表
-	} else if len(arg) < 2 || arg[1] == "" {
-		m.PushAction(s.Xterm, s.Remove).EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
-		m.Action(s.Keys, s.Info)
-		return m // 连接详情
-	}
-	msg := m.Spawn().Copy(m)
-	rp := s.Hash.Target(m, arg[0], func() ice.Any {
-		return NewRedisPool(kit.Format("%s:%s", msg.Append(tcp.HOST), msg.Append(tcp.PORT)), msg.Append(aaa.PASSWORD))
-	}).(*RedisPool)
-	r := rp.Get()
-	defer rp.Put(r)
-	switch m.SetAppend(); cb := m.OptionCB("").(type) {
-	case func(*redis):
-		cb(r)
-		return m
-	}
-	for _, line := range strings.Split(strings.TrimSpace(strings.Join(arg[1:], ice.SP)), ice.NL) {
-		m.Push(mdb.TIME, kit.Format(time.Now())).Push(ice.CMD, line)
-		cmds := kit.Split(line)
-		if res, err := r.Do(cmds[0], cmds[1:]...); err == nil {
-			switch cb := m.OptionCB("").(type) {
-			case func(ice.Any):
-				cb(res)
+		m.Table(func(value ice.Maps) {
+			switch value["role"] {
+			case "master", "":
+				m.PushButton(s.SlaveOf, s.Save, s.Info, s.Xterm, s.Remove)
 			default:
-				m.Push(ice.ERR, "").Push(ice.RES, kit.Format(res)).Echo("%v", res)
+				m.PushButton(s.Save, s.Info, s.Xterm, s.Remove)
 			}
-		} else {
-			m.Push(ice.ERR, kit.Format(err)).Push(ice.RES, "")
-		}
+		}).Action(s.Create, s.Scan).Sort(aaa.SESS)
+	} else if len(arg) < 2 || arg[1] == "" {
+		m.PushAction(s.Xterm, s.Remove).Action(s.Info)
+		m.EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
+	} else {
+		m.SetAppend()
+		s.cmds(m, arg...)
 	}
-	kit.If(m.Length() == 1 && m.Append(ice.ERR) == "", func() { m.SetAppend() })
-	return m
 }
-func (s client) Del(m *ice.Message, arg ...string) {
-	s.List(m, m.Option(aaa.SESS), DEL, m.Option(mdb.KEY))
+func (s client) SlaveOf(m *ice.Message, arg ...string) {
+	msg := m.Cmd("", m.Option(nfs.TO))
+	s.cmds(m, m.Option(aaa.SESS), "slaveof", msg.Append(tcp.HOST), msg.Append(tcp.PORT))
+	s.cmds(m, m.Option(aaa.SESS), CONFIG, SET, "masterauth", msg.Append(aaa.PASSWORD))
+	m.ProcessRefresh().ToastSuccess()
 }
+func (s client) Xterm(m *ice.Message, arg ...string) {
+	msg := s.Hash.List(m.Spawn(), m.Option(aaa.SESS))
+	m.ProcessXterm(kit.Keys(REDIS, msg.Append(aaa.SESS)), kit.Format("%s -h %s -p %s -a %s",
+		path.Join(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"),
+		msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
+}
+func (s client) Save(m *ice.Message, arg ...string) { s.Cmds(m, "") }
 func (s client) Info(m *ice.Message, arg ...string) {
-	s.List(m, arg[0], INFO)
+	m.Echo(kit.Format(s.cmdInfo(m, kit.Select(m.Option(aaa.SESS), arg, 0)))).DisplayStoryJSON()
+}
+
+func init() { ice.CodeModCmd(client{}) }
+
+func (s client) cmdInfo(m *ice.Message, sess string) ice.Any {
 	data, domain := kit.Dict(), ""
-	for _, line := range strings.Split(m.Result(), "\r\n") {
+	for _, line := range strings.Split(s.cmds(m.Spawn(), sess, INFO).Append(ice.RES), "\r\n") {
 		if strings.HasPrefix(line, "# ") {
 			domain = strings.TrimPrefix(line, "# ")
 			continue
@@ -102,57 +109,50 @@ func (s client) Info(m *ice.Message, arg ...string) {
 			kit.Value(data, kit.Keys(domain, ls[0]), ls[1])
 		}
 	}
-	m.SetAppend().SetResult().PushDetail(data)
+	return data
 }
-func (s client) Keys(m *ice.Message, arg ...string) {
-	m.OptionCB("", func(redis *redis) {
-		res, err := redis.Do(KEYS, kit.Select(mdb.FOREACH, m.Option(lex.PATTERN)))
-		if m.Warn(err) {
-			return
+func (s client) cmds(m *ice.Message, arg ...string) *ice.Message {
+	msg := s.Hash.List(m.Spawn(), arg[0])
+	rp := s.Hash.Target(m, arg[0], func() ice.Any {
+		return NewRedisPool(tcp.HostPort(msg.Append(tcp.HOST), msg.Append(tcp.PORT)), msg.Append(aaa.PASSWORD))
+	}).(*RedisPool)
+	r := rp.Get()
+	defer rp.Put(r)
+	switch cb := m.OptionCB("").(type) {
+	case func(*redis):
+		cb(r)
+		return m
+	case func(ice.Any):
+		if res, err := r.Do(arg[1], arg[2:]...); !m.Warn(err) {
+			cb(res)
 		}
-		m.OptionFields("")
-		for _, k := range kit.Slice(kit.Simple(res), 0, kit.Int(kit.Select("100", m.Option(mdb.LIMIT)))) {
-			t := kit.Format(redis.Done(mdb.TYPE, k))
-			m.Push(mdb.TYPE, t).Push("ttl", kit.Format(redis.Done("ttl", k))).Push(mdb.KEY, k)
-			switch t {
-			case STRING:
-				m.Push(mdb.VALUE, kit.Format(redis.Done("GET", k)))
-			case HASH:
-				m.Push(mdb.VALUE, kit.Formats(kit.Dict(redis.Done("HGETALL", k))))
-			case LIST:
-				m.Push(mdb.VALUE, kit.Format(redis.Done("LRANGE", k, "0", "-1")))
-			case ZSET:
-				data, list := kit.Dict(), kit.Simple(redis.Done("ZRANGE", k, "0", "-1", "WITHSCORES"))
-				kit.For(list, func(k, v string) { data[k] = v })
-				m.Push(mdb.VALUE, kit.Format(data))
-			case SET:
-				m.Push(mdb.VALUE, kit.Format(redis.Done("SMEMBERS", k)))
-			default:
-				m.Push(mdb.VALUE, "")
-			}
-			m.PushAction(s.Del)
+		return m
+	}
+	for _, line := range strings.Split(strings.TrimSpace(strings.Join(arg[1:], ice.SP)), ice.NL) {
+		m.Push(mdb.TIME, kit.Format(time.Now())).Push(ice.CMD, line)
+		cmds := kit.Split(line)
+		if res, err := r.Do(cmds[0], cmds[1:]...); err == nil {
+			m.Push(ice.ERR, "").Push(ice.RES, kit.Format(res))
+		} else {
+			m.Push(ice.ERR, kit.Format(err)).Push(ice.RES, "")
 		}
-		m.Sort(kit.Fields(mdb.TYPE, mdb.KEY)).StatusTimeCount()
-	})
-	s.List(m, m.Option(aaa.SESS), KEYS)
+	}
+	kit.If(m.Append(ice.ERR), func(p string) { m.ToastFailure(p) })
+	return m
 }
-func (s client) Prunes(m *ice.Message, arg ...string) {
-	m.OptionCB("", func(redis *redis) {
-		res, err := redis.Do(KEYS, m.Option(lex.PATTERN))
-		if m.Warn(err) {
-			return
-		}
-		for _, k := range kit.Slice(kit.Simple(res), 0, 100) {
-			res, err := redis.Do(DEL, k)
-			m.Push(mdb.KEY, k).Push(ice.ERR, kit.Format(err)).Push(ice.RES, kit.Format(res))
-		}
-	})
-	s.List(m, m.Option(aaa.SESS), KEYS)
-}
-func (s client) Xterm(m *ice.Message, arg ...string) {
-	msg := s.List(m.Spawn(), m.Option(aaa.SESS))
-	s.Code.Xterm(m, kit.Keys("redis", msg.Append(aaa.SESS)), kit.Format("%s -h %s -p %s -a %s",
-		path.Join(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"), msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
+func (s client) Cmds(m *ice.Message, cmd string, arg ...string) *ice.Message {
+	return m.Cmd(s, m.Option(aaa.SESS), kit.Select(m.ActionKey(), cmd), arg)
 }
 
-func init() { ice.CodeModCmd(client{}) }
+type Client struct {
+	client
+	list string `name:"list sess auto"`
+}
+
+func (s Client) List(m *ice.Message, arg ...string) *ice.Message {
+	if len(arg) == 0 {
+		m.Cmdy(s.client).Cut("time,sess,host,port,role").PushAction().Action()
+	}
+	return m
+}
+func init() { ice.CodeModCmd(Client{}) }

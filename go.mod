@@ -9,6 +9,6 @@ require (
 )
 
 require (
-	github.com/apache/pulsar-client-go v0.10.0
-	github.com/segmentio/kafka-go v0.4.42
+	github.com/apache/pulsar-client-go v0.12.1
+	github.com/segmentio/kafka-go v0.4.47
 )

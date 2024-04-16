@@ -30,5 +30,5 @@ set hi hello
 get hi
 `
 shell `
-config set requirepass demo
+config set requirepass root
 `

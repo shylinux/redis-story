@@ -24,12 +24,11 @@ type Stat struct {
 	BeginTime time.Time
 	EndTime   time.Time
 
-	Cost time.Duration
-
 	Up   float64
 	Down float64
 	QPS  float64
 	AVG  time.Duration
+	Cost time.Duration
 }
 
 var trans = map[string]func(i int64) []string{

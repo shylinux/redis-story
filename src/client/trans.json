@@ -1,0 +1,10 @@
+{
+	"client": "客户端",
+	"keys": "数据",
+	"configs": "配置",
+	"commands": "命令",
+	"shells": "终端",
+	"input": {
+		"TTL": "有效期"
+	}
+}

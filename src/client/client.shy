@@ -1,5 +1,6 @@
 chapter "client"
-field "查询数据" web.code.redis.client
-field "查询数据" web.code.redis.client args biz args.1 `get hi`
-field "修改数据" web.code.redis.client args biz args.1 `set hi hello`
-field "修改数据" web.code.redis.client args biz args.1 `set hi world`
+field web.code.redis.client
+field web.code.redis.keys
+field web.code.redis.configs
+field web.code.redis.commands
+field web.code.redis.shells
