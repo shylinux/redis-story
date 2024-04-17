@@ -7,6 +7,6 @@ Volcanos(chat.ONIMPORT, {
 		} })
 	}) },
 	_nick: function(can, value) {
-		return value.sess.slice(0, 8)+`(${value.host}:${value.port}) ${value.role}`
+		return value.sess.slice(0, 6)+`(${value.host}:${value.port}) ${value.role}`
 	},
 }, [""])

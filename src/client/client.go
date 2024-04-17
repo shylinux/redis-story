@@ -14,36 +14,29 @@ import (
 )
 
 const (
-	INFO = "INFO"
-)
-const (
-	REDIS  = "redis"
-	STRING = "string"
-	HASH   = "hash"
-	LIST   = "list"
-	ZSET   = "zset"
+	REDIS = "redis"
+	INFO  = "info"
+	SAVE  = "save"
 )
 
 type client struct {
 	ice.Hash
-	export  string `data:"true"`
-	short   string `data:"sess"`
-	field   string `data:"time,sess,host,port,role,master,save,appendonly,maxclients,maxmemory"`
-	create  string `name:"create sess*=biz host*=localhost port*=10001 password*=root"`
-	list    string `name:"list sess auto"`
-	prunes  string `name:"prunes limit*=100 pattern"`
-	keys    string `name:"keys limit*=100 pattern"`
-	slaveOf string `name:"slaveOf to*" icon:"bi bi-copy"`
+	ice.Code
+	checkbox      string `data:"true"`
+	export        string `data:"true"`
+	short         string `data:"sess"`
+	field         string `data:"time,sess,host,port,password,role,master,nodeid,slots,save,appendonly,maxclients,maxmemory"`
+	create        string `name:"create sess*=biz host*=localhost port*=10001 password*=root"`
+	list          string `name:"list sess auto"`
+	slaveOf       string `name:"slaveOf to*"`
+	clusterCreate string `name:"clusterCreate cluster-replicas*=1"`
 }
 
 func (s client) Inputs(m *ice.Message, arg ...string) {
-	kit.If(arg[0] == nfs.TO, func() { arg[0] = aaa.SESS })
+	kit.If(kit.IsIn(arg[0], nfs.FROM, nfs.TO), func() { arg[0] = aaa.SESS })
 	if arg[0] == aaa.SESS {
-		m.Cmdy("").Cut(aaa.SESS, tcp.HOST, tcp.PORT)
-		return
-	}
-	switch s.Hash.Inputs(m, arg...); arg[0] {
-	case tcp.PORT:
+		m.Cmdy("").Cut(aaa.SESS, tcp.HOST, tcp.PORT, aaa.ROLE)
+	} else if s.Hash.Inputs(m, arg...); arg[0] == tcp.PORT {
 		m.Push(arg[0], "6379")
 	}
 }
@@ -56,28 +49,42 @@ func (s client) Scan(m *ice.Message, arg ...string) {
 		data := s.cmdInfo(m, value[aaa.SESS])
 		get := func(key string) string { return kit.Format(kit.Value(data, "Replication."+key)) }
 		s.Hash.Modify(m, kit.Simple(aaa.SESS, value[aaa.SESS],
-			aaa.ROLE, get(aaa.ROLE), "master", list[tcp.HostPort(get("master_host"), get("master_port"))],
+			aaa.ROLE, get(aaa.ROLE), MASTER, list[tcp.HostPort(get("master_host"), get("master_port"))],
 			msg.AppendSimple("save,appendonly,maxclients,maxmemory"),
 		)...)
+		if kit.Format(kit.Value(data, "Cluster.cluster_enabled")) == "1" {
+			m.Cmd(cluster{}, value[aaa.SESS]).Table(func(value ice.Maps) {
+				ls := kit.Split(value[tcp.HOSTPORT], ":@")
+				s.Hash.Modify(m, kit.Simple(aaa.SESS, list[tcp.HostPort(ls[0], ls[1])],
+					aaa.ROLE, value[aaa.ROLE], MASTER, value[MASTER], NODEID, value[mdb.ID], SLOTS, value[SLOTS],
+				)...)
+			})
+		}
 	})
 }
 func (s client) List(m *ice.Message, arg ...string) {
-	if s.Hash.List(m, arg...); len(arg) < 1 || arg[0] == "" {
+	if s.Hash.List(m, arg...); len(arg) == 0 || arg[0] == "" {
 		m.Table(func(value ice.Maps) {
-			switch value["role"] {
-			case "master", "":
-				m.PushButton(s.SlaveOf, s.Save, s.Info, s.Xterm, s.Remove)
-			default:
-				m.PushButton(s.Save, s.Info, s.Xterm, s.Remove)
-			}
-		}).Action(s.Create, s.Scan).Sort(aaa.SESS)
-	} else if len(arg) < 2 || arg[1] == "" {
-		m.PushAction(s.Xterm, s.Remove).Action(s.Info)
-		m.EchoScript(kit.Format("redis-cli -h %s -p %s -a '%s'", m.Append(tcp.HOST), m.Append(tcp.PORT), m.Append(aaa.PASSWORD)))
+			button := []ice.Any{}
+			kit.If(value[aaa.ROLE] == MASTER && value[MASTER] == "", func() { button = append(button, s.SlaveOf) })
+			button = append(button, s.Save, s.Info, s.Xterm, s.Remove)
+			m.PushButton(button...)
+		}).Action(s.Create, s.ClusterCreate, s.Scan).Sort(tcp.PORT, ice.INT_R)
+	} else if len(arg) == 1 || arg[1] == "" {
+		m.PushAction(s.Info, s.Xterm, s.Remove).Action()
 	} else {
 		m.SetAppend()
 		s.cmds(m, arg...)
 	}
+}
+func (s client) ClusterCreate(m *ice.Message, arg ...string) {
+	list := m.CmdMap(s, aaa.SESS)
+	cmd, password, args := "redis-cli", "", []string{}
+	kit.For(kit.Split(m.Option(aaa.SESS)), func(p string) {
+		cmd, password = s.findCmds(m, list[p][tcp.PORT]), list[p][aaa.PASSWORD]
+		args = append(args, tcp.HostPort(list[p][tcp.HOST], list[p][tcp.PORT]))
+	})
+	m.SystemCmd(cmd, "-a", password, "--cluster", mdb.CREATE, args, s.Code.Args(m), "--cluster-yes")
 }
 func (s client) SlaveOf(m *ice.Message, arg ...string) {
 	msg := m.Cmd("", m.Option(nfs.TO))
@@ -86,29 +93,37 @@ func (s client) SlaveOf(m *ice.Message, arg ...string) {
 	m.ProcessRefresh().ToastSuccess()
 }
 func (s client) Xterm(m *ice.Message, arg ...string) {
-	msg := s.Hash.List(m.Spawn(), m.Option(aaa.SESS))
-	m.ProcessXterm(kit.Keys(REDIS, msg.Append(aaa.SESS)), kit.Format("%s -h %s -p %s -a %s",
-		path.Join(ice.USR_LOCAL_DAEMON, msg.Append(tcp.PORT), "bin/redis-cli"),
-		msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)
+	m.ProcessXterm(kit.Format("%s(%s:%s)", m.Option(aaa.SESS), m.Option(tcp.HOST), m.Option(tcp.PORT)), s.findCmdArgs(m, m.Option(aaa.SESS)), arg...)
 }
-func (s client) Save(m *ice.Message, arg ...string) { s.Cmds(m, "") }
+func (s client) Save(m *ice.Message, arg ...string) {
+	s.Cmds(m, "")
+}
 func (s client) Info(m *ice.Message, arg ...string) {
-	m.Echo(kit.Format(s.cmdInfo(m, kit.Select(m.Option(aaa.SESS), arg, 0)))).DisplayStoryJSON()
+	m.Echo(kit.Format(s.cmdInfo(m, m.Option(aaa.SESS)))).DisplayStoryJSON()
 }
 
 func init() { ice.CodeModCmd(client{}) }
 
+func (s client) findCmdArgs(m *ice.Message, sess string) string {
+	msg := m.Cmd(s, sess)
+	return kit.Format("%s -h %s -p %s -a %s", s.findCmds(m, msg.Append(tcp.PORT)), msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD))
+}
+func (s client) findCmds(m *ice.Message, port string) string {
+	cmd := "redis-cli"
+	nfs.Exists(m.Message, path.Join(ice.USR_LOCAL_DAEMON, port, "bin/redis-cli"), func(p string) { cmd = p })
+	return cmd
+}
 func (s client) cmdInfo(m *ice.Message, sess string) ice.Any {
 	data, domain := kit.Dict(), ""
-	for _, line := range strings.Split(s.cmds(m.Spawn(), sess, INFO).Append(ice.RES), "\r\n") {
-		if strings.HasPrefix(line, "# ") {
-			domain = strings.TrimPrefix(line, "# ")
-			continue
-		}
-		if ls := strings.SplitN(strings.TrimSpace(line), ice.DF, 2); len(ls) > 1 {
-			kit.Value(data, kit.Keys(domain, ls[0]), ls[1])
-		}
-	}
+	s.Cmds(m.Options(aaa.SESS, sess), INFO, func(res ice.Any) {
+		kit.For(kit.SplitLine(kit.Format(res), "\r\n"), func(line string) {
+			if strings.HasPrefix(line, "# ") {
+				domain = strings.TrimPrefix(line, "# ")
+			} else if ls := strings.SplitN(strings.TrimSpace(line), ice.DF, 2); len(ls) > 1 {
+				kit.Value(data, kit.Keys(domain, ls[0]), ls[1])
+			}
+		})
+	})
 	return data
 }
 func (s client) cmds(m *ice.Message, arg ...string) *ice.Message {
@@ -117,6 +132,9 @@ func (s client) cmds(m *ice.Message, arg ...string) *ice.Message {
 		return NewRedisPool(tcp.HostPort(msg.Append(tcp.HOST), msg.Append(tcp.PORT)), msg.Append(aaa.PASSWORD))
 	}).(*RedisPool)
 	r := rp.Get()
+	if r == nil {
+		return m
+	}
 	defer rp.Put(r)
 	switch cb := m.OptionCB("").(type) {
 	case func(*redis):
@@ -140,7 +158,7 @@ func (s client) cmds(m *ice.Message, arg ...string) *ice.Message {
 	kit.If(m.Append(ice.ERR), func(p string) { m.ToastFailure(p) })
 	return m
 }
-func (s client) Cmds(m *ice.Message, cmd string, arg ...string) *ice.Message {
+func (s client) Cmds(m *ice.Message, cmd string, arg ...ice.Any) *ice.Message {
 	return m.Cmd(s, m.Option(aaa.SESS), kit.Select(m.ActionKey(), cmd), arg)
 }
 
@@ -151,7 +169,7 @@ type Client struct {
 
 func (s Client) List(m *ice.Message, arg ...string) *ice.Message {
 	if len(arg) == 0 {
-		m.Cmdy(s.client).Cut("time,sess,host,port,role").PushAction().Action()
+		m.Cmdy(s.client).Cut("time,sess,host,port,role,master,nodeid,slots").PushAction().Action()
 	}
 	return m
 }

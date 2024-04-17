@@ -13,8 +13,9 @@ const (
 
 type commands struct {
 	Client
-	short string `data:"command"`
-	field string `data:"time,command,type,name,text"`
+	export string `data:"true"`
+	short  string `data:"command"`
+	field  string `data:"time,command,type,name,text"`
 }
 
 var types = []string{"keys", STRING, HASH, LIST, ZSET, SET, "admin"}
@@ -32,7 +33,7 @@ func (s commands) List(m *ice.Message, arg ...string) {
 		s.Client.List(m, arg...)
 		return
 	}
-	list := map[string]map[string]string{}
+	list := map[string]ice.Maps{}
 	s.Hash.List(m.Spawn()).Table(func(value ice.Maps) { list[value[COMMAND]] = value })
 	m.Cmdy(s.Client, arg[0], COMMAND, func(res ice.Any) {
 		kit.For(res, func(value ice.Any) {
@@ -40,11 +41,9 @@ func (s commands) List(m *ice.Message, arg ...string) {
 			value, ok := list[command]
 			button := []ice.Any{}
 			kit.If(!ok, func() {
-				value = map[string]string{mdb.TIME: m.Time(), COMMAND: command}
-				button = append(button, s.Create)
+				value, button = map[string]string{mdb.TIME: m.Time(), COMMAND: command}, append(button, s.Create)
 			})
-			m.PushRecord(value, kit.Split(m.Config(mdb.FIELD))...)
-			m.PushButton(button...)
+			m.PushRecord(value, kit.Split(m.Config(mdb.FIELD))...).PushButton(button...)
 		})
 	}).Action(html.FILTER).StatusTimeCountStats(mdb.TYPE).Sort("type,command", types, ice.STR)
 }

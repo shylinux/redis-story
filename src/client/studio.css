@@ -1,4 +1,6 @@
+/* fieldset.web.code.redis.studio>div.action>div.tabs.master.select { background-color:var(--hover-bg-color); border-left:var(--box-danger3); } */
 fieldset.web.code.redis.studio>div.action>div.tabs.master.select { border-top:var(--box-danger3); }
+/* fieldset.web.code.redis.studio>div.action>div.tabs.master.select { border-bottom:var(--box-danger3); } */
 fieldset.web.code.redis.studio>div.output>div.project div.item.master.select { border-left:var(--box-danger3); }
 fieldset.web.code.redis.studio>div.output>div.project div:not(.text).item { padding:var(--button-padding); }
 fieldset.web.code.redis.keys>div.output>table.content tr.string td:first-child { color:green; }

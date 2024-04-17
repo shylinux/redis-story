@@ -1,10 +1,21 @@
 {
+	"studio": "工作室",
 	"client": "客户端",
-	"keys": "数据",
-	"configs": "配置",
-	"commands": "命令",
 	"shells": "终端",
+	"commands": "命令",
+	"configs": "配置",
+	"keys": "数据",
+	"cluster": "集群",
+	"icons": {
+		"studio": "redis.png",
+		"slaveOf": "bi bi-copy",
+		"clusterCreate": "bi bi-pie-chart",
+		"del": "bi bi-trash"
+	},
 	"input": {
+		"field": "字段",
+		"score": "分数",
+		"member": "成员",
 		"TTL": "有效期"
 	}
 }

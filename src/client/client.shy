@@ -1,6 +1,8 @@
 chapter "client"
 field web.code.redis.client
-field web.code.redis.keys
-field web.code.redis.configs
 field web.code.redis.commands
+field web.code.redis.configs
+field web.code.redis.keys
+field web.code.redis.stats
 field web.code.redis.shells
+field web.code.redis.cluster
