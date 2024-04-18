@@ -11,6 +11,7 @@ import (
 
 const (
 	KEYS   = "keys"
+	SCAN   = "scan"
 	STRING = "string"
 	HASH   = "hash"
 	LIST   = "list"
@@ -68,35 +69,12 @@ func (s keys) List(m *ice.Message, arg ...string) {
 		s.Client.List(m, arg...)
 		return
 	}
-	m.Cmdy(s.Client, arg[0], KEYS, kit.Select("*", arg, 1), func(redis *redis) {
-		res, err := redis.Do(KEYS, kit.Select(mdb.FOREACH, kit.Select("*", arg, 1)))
-		if m.Warn(err) {
-			return
+	m.Cmdy(s.Client, arg[0], SCAN, func(redis *redis) {
+		if res, err := redis.Do(SCAN, "0", "match", kit.Select("*", arg, 1), mdb.COUNT, "100"); !m.Warn(err) {
+			s.keys(m, redis, kit.Value(res, 1))
+			m.StatusTimeCount(mdb.NEXT, kit.Value(res, 0))
 		}
-		for _, k := range kit.Slice(kit.Simple(res), 0, kit.Int(kit.Select("100", m.Option(mdb.LIMIT)))) {
-			t := kit.Format(redis.Done(mdb.TYPE, k))
-			ttl := kit.Format(redis.Done(TTL, k))
-			button := []ice.Any{}
-			var value ice.Any
-			switch t {
-			case STRING:
-				value, button = redis.Done(GET, k), append(button, s.Get, s.Set)
-			case HASH:
-				value, button = kit.Formats(kit.Dict(redis.Done("HGETALL", k))), append(button, s.Hget, s.Hset, s.Hdel)
-			case LIST:
-				value, button = redis.Done("LRANGE", k, "0", "-1"), append(button, s.Lpush, s.Lpop)
-			case ZSET:
-				data, list := kit.Dict(), kit.Simple(redis.Done("ZRANGE", k, "0", "-1", "WITHSCORES"))
-				kit.For(list, func(k, v string) { data[k] = v })
-				value, button = data, append(button, s.Zadd, s.Zrem)
-			case SET:
-				value, button = redis.Done("SMEMBERS", k), append(button, s.Sadd, s.Srem)
-			}
-			button = append(button, s.Expire, s.Rename, s.Del)
-			m.Push(mdb.TYPE, t).Push(TTL, ttl).Push(mdb.KEY, k)
-			m.Push(mdb.VALUE, kit.Format(value)).PushButton(button...)
-		}
-	}).Action(html.FILTER, s.Prunes).StatusTimeCount().Sort(mdb.KEY)
+	}).Action(html.FILTER, s.Prunes).Sort(mdb.KEY)
 }
 func (s keys) Get(m *ice.Message, arg ...string)    { m.Echo(s.Cmds(m).Append(ice.RES)) }
 func (s keys) Set(m *ice.Message, arg ...string)    { s.Cmds(m, m.Option(mdb.VALUE)) }
@@ -122,6 +100,31 @@ func (s keys) Zrem(m *ice.Message, arg ...string) { s.Cmds(m, m.Option(mdb.MEMBE
 
 func init() { ice.CodeModCmd(keys{}) }
 
+func (s keys) keys(m *ice.Message, redis *redis, res ice.Any) {
+	kit.For(res, func(k string) {
+		t := kit.Format(redis.Done(mdb.TYPE, k))
+		ttl := kit.Format(redis.Done(TTL, k))
+		button := []ice.Any{}
+		var value ice.Any
+		switch t {
+		case STRING:
+			value, button = redis.Done(GET, k), append(button, s.Get, s.Set)
+		case HASH:
+			value, button = kit.Formats(kit.Dict(redis.Done("HGETALL", k))), append(button, s.Hget, s.Hset, s.Hdel)
+		case LIST:
+			value, button = redis.Done("LRANGE", k, "0", "-1"), append(button, s.Lpush, s.Lpop)
+		case ZSET:
+			data, list := kit.Dict(), kit.Simple(redis.Done("ZRANGE", k, "0", "-1", "WITHSCORES"))
+			kit.For(list, func(k, v string) { data[k] = v })
+			value, button = data, append(button, s.Zadd, s.Zrem)
+		case SET:
+			value, button = redis.Done("SMEMBERS", k), append(button, s.Sadd, s.Srem)
+		}
+		button = append(button, s.Expire, s.Rename, s.Del)
+		m.Push(mdb.TYPE, t).Push(TTL, ttl).Push(mdb.KEY, k)
+		m.Push(mdb.VALUE, kit.Format(value)).PushButton(button...)
+	})
+}
 func (s keys) Cmds(m *ice.Message, arg ...string) *ice.Message {
 	return s.Client.Cmds(m, "", m.Option(mdb.KEY), arg)
 }
