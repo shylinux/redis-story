@@ -1,0 +1,229 @@
+{
+  "06b2d4b91b5c9eaa8c20a1c270f95b3c": {
+    "meta": {
+      "command": "cluster",
+      "time": "2024-04-17 22:37:16.363",
+      "type": "admin"
+    }
+  },
+  "09f55e5f95d3dae56cbdc8d51fe63be2": {
+    "meta": {
+      "command": "lpush",
+      "name": "key value [value ...]",
+      "time": "2024-04-17 03:43:21.260",
+      "type": "list"
+    }
+  },
+  "1436e6320006fc9b5becc6d31c4c0cfe": {
+    "meta": {
+      "command": "zrem",
+      "name": "key member [member ...]",
+      "time": "2024-04-17 03:38:56.699",
+      "type": "zset"
+    }
+  },
+  "1dccadfed7bcbb036c56a4afb97e906f": {
+    "meta": {
+      "command": "command",
+      "time": "2024-04-17 01:45:35.995",
+      "type": "admin"
+    }
+  },
+  "2245023265ae4cf87d02c8b6ba991139": {
+    "meta": {
+      "command": "config",
+      "time": "2024-04-17 01:45:41.043",
+      "type": "admin"
+    }
+  },
+  "29a7e96467b69a9f5a93332e29e9b0de": {
+    "meta": {
+      "command": "role",
+      "time": "2024-04-17 01:47:10.641",
+      "type": "admin"
+    }
+  },
+  "43781db5c40ecc39fd718685594f0956": {
+    "meta": {
+      "command": "save",
+      "time": "2024-04-17 01:45:01.296",
+      "type": "admin"
+    }
+  },
+  "4f0fc2be4365cb83a13d5a43c76d8089": {
+    "meta": {
+      "command": "lpop",
+      "name": "key",
+      "time": "2024-04-17 03:44:00.623",
+      "type": "list"
+    }
+  },
+  "55b1a07dd0b8ae6ce90dbfa769f6ba6f": {
+    "meta": {
+      "command": "slaveof",
+      "time": "2024-04-17 01:47:35.189",
+      "type": "admin"
+    }
+  },
+  "5924f03a95ee6f7277e5bdd1e81b8fdc": {
+    "meta": {
+      "command": "shutdown",
+      "time": "2024-04-17 01:47:27.490",
+      "type": "admin"
+    }
+  },
+  "599dcce2998a6b40b1e38e8c6006cb0a": {
+    "meta": {
+      "command": "type",
+      "time": "2024-04-17 22:40:02.361",
+      "type": "keys"
+    }
+  },
+  "5ca4b722707013b233e526659583df95": {
+    "meta": {
+      "command": "persist",
+      "name": "key",
+      "time": "2024-04-17 03:50:37.831",
+      "type": "keys"
+    }
+  },
+  "6dcaf449415765e1fc8503e76318736b": {
+    "meta": {
+      "command": "srem",
+      "name": "key member [member ...]",
+      "time": "2024-04-17 03:33:55.799",
+      "type": "set"
+    }
+  },
+  "7fcb5c6bbe96c34cd3837b2e561eb6a2": {
+    "meta": {
+      "command": "hget",
+      "name": "key field\n",
+      "time": "2024-04-17 01:42:41.751",
+      "type": "hash"
+    }
+  },
+  "82979564efd472dd3b3dfd99f95c96a1": {
+    "meta": {
+      "command": "replicaof",
+      "time": "2024-04-17 22:39:35.311",
+      "type": "admin"
+    }
+  },
+  "90ec922e613070022761300109035585": {
+    "meta": {
+      "command": "sadd",
+      "name": "key member [member ...]\n",
+      "time": "2024-04-17 01:47:18.690",
+      "type": "set"
+    }
+  },
+  "ab0e77ecf8c2ce8e87cdd42548135361": {
+    "meta": {
+      "command": "hset",
+      "name": "key field value\n",
+      "time": "2024-04-17 01:42:50.398",
+      "type": "hash"
+    }
+  },
+  "b5eda0a74558a342cf659187f06f746f": {
+    "meta": {
+      "command": "get",
+      "name": "key\n",
+      "time": "2024-04-17 01:40:47.901",
+      "type": "string"
+    }
+  },
+  "b749e46e873e127d3f7459c03470e318": {
+    "meta": {
+      "command": "zadd",
+      "name": "[NX|XX] [CH] [INCR] score member [score member ...]",
+      "time": "2024-04-17 03:37:20.598",
+      "type": "zset"
+    }
+  },
+  "b83aca7148ca4a9a779c4da26e167275": {
+    "meta": {
+      "command": "bgsave",
+      "time": "2024-04-17 01:45:20.894",
+      "type": "admin"
+    }
+  },
+  "bbd725f2fb8a6cbe36c39a1d45486a0c": {
+    "meta": {
+      "command": "hdel",
+      "name": "key field [field ...]\n",
+      "time": "2024-04-17 01:46:16.342",
+      "type": "hash"
+    }
+  },
+  "c431a4425bc56080c868435c8d910f83": {
+    "meta": {
+      "command": "ttl",
+      "time": "2024-04-17 22:40:07.864",
+      "type": "keys"
+    }
+  },
+  "caf9b6b99962bf5c2264824231d7a40c": {
+    "meta": {
+      "command": "info",
+      "time": "2024-04-17 01:46:36.193",
+      "type": "admin"
+    }
+  },
+  "cd91e7679d575a2c548bd2c889c23b9e": {
+    "meta": {
+      "command": "expire",
+      "name": "key seconds",
+      "time": "2024-04-17 03:53:46.828",
+      "type": "keys"
+    }
+  },
+  "cdaeeeba9b4a4c5ebf042c0215a7bb0e": {
+    "meta": {
+      "command": "set",
+      "name": "key value [expiration EX seconds|PX milliseconds] [NX|XX]\n",
+      "time": "2024-04-17 01:41:56.849",
+      "type": "string"
+    }
+  },
+  "d2bcc286168bf8e040885c5cb7b6df13": {
+    "meta": {
+      "command": "del",
+      "name": "key [key ...]\n",
+      "time": "2024-04-17 01:48:39.538",
+      "type": "keys"
+    }
+  },
+  "d7fba04fc8e17bcfc603b318a85b762c": {
+    "meta": {
+      "command": "rename",
+      "time": "2024-04-17 22:39:24.261",
+      "type": "keys"
+    }
+  },
+  "df911f0151f9ef021d410b4be5060972": {
+    "meta": {
+      "command": "ping",
+      "name": "[message]\n",
+      "time": "2024-04-17 01:46:52.441",
+      "type": "admin"
+    }
+  },
+  "e087923eb5dd1310f5f25ddd5ae5b580": {
+    "meta": {
+      "command": "exists",
+      "name": "key [key ...]\n",
+      "time": "2024-04-17 01:48:29.589",
+      "type": "keys"
+    }
+  },
+  "fa53b91ccc1b78668d5af58e1ed3a485": {
+    "meta": {
+      "command": "auth",
+      "name": "password\n",
+      "time": "2024-04-17 01:45:13.095",
+      "type": "admin"
+    }
+  }
+}

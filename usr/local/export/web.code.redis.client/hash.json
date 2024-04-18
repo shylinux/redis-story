@@ -1,0 +1,134 @@
+{
+  "0346c3a1ea123c6bf45e57bf3e6a6e7d": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "master": "8ac874227c7c765c3c71d60d42a7cdceaee43fd4",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "nodeid": "74da0b9272ceef1b846683cd769237baf99f4956",
+      "password": "123",
+      "port": "10002",
+      "role": "slave",
+      "sess": "c26983df7516c9daa6bd6308dd1b2431",
+      "time": "2024-04-17 16:26:45.566"
+    }
+  },
+  "12d255bc3d8656afe11a84fa84670efa": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "password": "123",
+      "port": "10008",
+      "role": "master",
+      "sess": "226649fe0e41dae6d0feb5e96dc70da7",
+      "time": "2024-04-17 17:37:54.177"
+    }
+  },
+  "77715e92ca9e1d681c705d825192b4d3": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "master": "-",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "nodeid": "8ac874227c7c765c3c71d60d42a7cdceaee43fd4",
+      "password": "123",
+      "port": "10004",
+      "role": "master",
+      "sess": "e4072a1c24282ad472640d5f4f5fb9cb",
+      "slots": "0-2730",
+      "time": "2024-04-17 16:26:57.666"
+    }
+  },
+  "91c0f83e4d1a2f2602f3714fef0be17e": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "master": "3234db55baaef50918406db9be6166291c9fd823",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "nodeid": "151c4e434b799def3ca4dc0a3d0cf1ed7b4f58df",
+      "password": "123",
+      "port": "10003",
+      "role": "slave",
+      "sess": "e173081152ce9aacc5a14289d9965aa6",
+      "time": "2024-04-17 16:26:51.666"
+    }
+  },
+  "c1c9edc8025e0a5d63c3be70436ab79e": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "master": "-",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "nodeid": "c5dd80d8c00f32353112c289f9a9e429c5f31863",
+      "password": "123",
+      "port": "10005",
+      "role": "master",
+      "sess": "808dbebc1a603b8ccd35431ca8f7f2c2",
+      "slots": "7731-10922",
+      "time": "2024-04-17 16:27:03.428"
+    }
+  },
+  "cb2c56a6f79c9ffeaf056f745b91afbe": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "password": "123",
+      "port": "10007",
+      "role": "master",
+      "sess": "942c7e61e6acd8af370ff4f56e6d2ea4",
+      "time": "2024-04-17 17:37:09.129"
+    }
+  },
+  "cd90db98a3016c07a6c68af1d9e70eae": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "master": "-",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "nodeid": "3234db55baaef50918406db9be6166291c9fd823",
+      "password": "123",
+      "port": "10006",
+      "role": "master",
+      "sess": "95cb7f660b75bfab089deff2bf7b1d10",
+      "slots": "2731-7730",
+      "time": "2024-04-17 16:27:12.077"
+    }
+  },
+  "f7fc1e554195113b115ead70a13c6d29": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "master": "c5dd80d8c00f32353112c289f9a9e429c5f31863",
+      "maxclients": "10000",
+      "maxmemory": "0",
+      "nodeid": "e48997b4595719fcae167407fe1945e3fec2cac1",
+      "password": "123",
+      "port": "10001",
+      "role": "slave",
+      "sess": "d3489aacd700bcf9464e518b5b2a1d56",
+      "time": "2024-04-17 16:26:38.765"
+    }
+  },
+  "fed27f8e806968c45f803e7294afccb6": {
+    "meta": {
+      "appendonly": "no",
+      "host": "127.0.0.1",
+      "maxclients": "10000",
+      "maxmemory": "3000000",
+      "password": "123",
+      "port": "10009",
+      "role": "master",
+      "sess": "0c8d988637a40f7173e9441e39eb1bad",
+      "time": "2024-04-17 17:09:13.436"
+    }
+  }
+}
