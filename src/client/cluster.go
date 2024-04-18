@@ -5,6 +5,7 @@ import (
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/aaa"
+	"shylinux.com/x/icebergs/base/cli"
 	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
@@ -20,10 +21,10 @@ const (
 type cluster struct {
 	Client
 	create  string `name:"create cluster-replicas*=1"`
+	slaveOf string `name:"slaveOf to*"`
+	reshard string `name:"reshard from* to* slots"`
 	add     string `name:"add from* to"`
 	del     string `name:"del from*"`
-	reshard string `name:"reshard from* to* slots"`
-	slaveOf string `name:"slaveOf to*"`
 }
 
 func (s cluster) Create(m *ice.Message, arg ...string) {
@@ -42,7 +43,7 @@ func (s cluster) Create(m *ice.Message, arg ...string) {
 		return
 	}
 	m.SystemCmd(cmd, "-a", password, "--cluster", mdb.CREATE, args, s.Code.Args(m), "--cluster-yes")
-	m.Sleep("3s").Cmd(s.Client, s.Scan)
+	m.Sleep(cli.TIME_3s).Cmd(s.Client, s.Scan)
 }
 func (s cluster) List(m *ice.Message, arg ...string) {
 	if len(arg) == 0 {
@@ -74,9 +75,7 @@ func (s cluster) SlaveOf(m *ice.Message, arg ...string) {
 	m.Cmd(s.Client, s.Client.Scan)
 }
 func (s cluster) Rebalance(m *ice.Message, arg ...string) {
-	s.Cmds(m, "", func(node string, from *ice.Message) []string {
-		return []string{node}
-	})
+	s.Cmds(m, "", func(node string, from *ice.Message) []string { return []string{node} })
 }
 func (s cluster) Reshard(m *ice.Message, arg ...string) {
 	s.Cmds(m, "", func(node string, from *ice.Message) []string {
@@ -94,9 +93,7 @@ func (s cluster) Add(m *ice.Message, arg ...string) {
 	})
 }
 func (s cluster) Del(m *ice.Message, arg ...string) {
-	s.Cmds(m, "del-node", func(node string, from *ice.Message) []string {
-		return []string{node, from.Append(NODEID)}
-	})
+	s.Cmds(m, "del-node", func(node string, from *ice.Message) []string { return []string{node, from.Append(NODEID)} })
 }
 
 func init() { ice.CodeModCmd(cluster{}) }
@@ -111,6 +108,5 @@ func (s cluster) Cmds(m *ice.Message, cmd string, cb func(string, *ice.Message) 
 }
 func (s cluster) cmds(m *ice.Message, cmd string, cb func(string, *ice.Message) []string) []string {
 	msg, from := m.Cmd(s.Client, m.Option(aaa.SESS)), m.Cmd(s.Client, m.Option(nfs.FROM))
-	return kit.Simple(s.findCmds(m, msg.Append(tcp.PORT)), "-a", msg.Append(aaa.PASSWORD), "--cluster",
-		kit.Select(m.ActionKey(), cmd), cb(tcp.HostPort(msg.Append(tcp.HOST), msg.Append(tcp.PORT)), from))
+	return kit.Simple(s.findCmds(m, msg.Append(tcp.PORT)), "-a", msg.Append(aaa.PASSWORD), "--cluster", kit.Select(m.ActionKey(), cmd), cb(tcp.HostPort(msg.Append(tcp.HOST), msg.Append(tcp.PORT)), from))
 }

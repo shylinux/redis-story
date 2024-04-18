@@ -7,9 +7,7 @@
 	"keys": "数据",
 	"stats": "资源",
 	"cluster": "集群",
-
 	"slaveOf": "复制",
-
 	"icons": {
 		"studio": "redis.png",
 		"slaveOf": "bi bi-copy",

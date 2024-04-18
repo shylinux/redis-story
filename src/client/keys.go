@@ -19,8 +19,6 @@ const (
 	GET    = "get"
 	DEL    = "del"
 	TTL    = "TTL"
-	EXPIRE = "expire"
-	RENAME = "rename"
 )
 
 type keys struct {

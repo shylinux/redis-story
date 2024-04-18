@@ -23,7 +23,7 @@ func (s stats) Scan(m *ice.Message, arg ...string) {
 		s.Zone.Insert(m.Spawn(), kit.Simple(aaa.SESS, value[aaa.SESS], KEYS, keys, get("Memory", "used_memory"),
 			get("CPU", "used_cpu_user"), get("CPU", "used_cpu_sys"), get("Clients", "connected_clients"),
 		)...)
-		s.Hash.Modify(m.Spawn(), kit.Simple(aaa.SESS, value[aaa.SESS], get("Memory", "used_memory_human"), KEYS, keys)...)
+		s.Hash.Modify(m.Spawn(), kit.Simple(aaa.SESS, value[aaa.SESS], KEYS, keys, get("Memory", "used_memory_human"))...)
 	})
 }
 func (s stats) List(m *ice.Message, arg ...string) { s.Zone.List(m, arg...).Action(s.Scan) }
