@@ -18,7 +18,7 @@ type commands struct {
 	field  string `data:"time,command,type,name,text"`
 }
 
-var types = []string{"keys", STRING, HASH, LIST, ZSET, SET, "admin"}
+var types = []string{KEYS, STRING, HASH, LIST, ZSET, SET, "admin"}
 
 func (s commands) Inputs(m *ice.Message, arg ...string) {
 	switch arg[0] {

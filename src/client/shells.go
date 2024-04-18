@@ -15,7 +15,6 @@ type shells struct {
 	create string `name:"create sess*"`
 }
 
-func (s shells) Inputs(m *ice.Message, arg ...string) { m.Cmdy(s.Client, m.ActionKey(), arg) }
 func (s shells) Create(m *ice.Message, arg ...string) *ice.Message {
 	msg := m.Cmd(s.Client, m.Option(aaa.SESS))
 	m.ProcessXterm("", kit.Format("%s -h %s -p %s -a %s", s.findCmds(m, msg.Append(tcp.PORT)), msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD)), arg...)

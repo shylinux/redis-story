@@ -5,14 +5,20 @@
 	"commands": "命令",
 	"configs": "配置",
 	"keys": "数据",
+	"stats": "资源",
 	"cluster": "集群",
+
+	"slaveOf": "复制",
+
 	"icons": {
 		"studio": "redis.png",
 		"slaveOf": "bi bi-copy",
 		"clusterCreate": "bi bi-pie-chart",
+		"bgSave": "bi bi-floppy",
 		"del": "bi bi-trash"
 	},
 	"input": {
+		"cluster-replicas": "复制",
 		"field": "字段",
 		"score": "分数",
 		"member": "成员",
