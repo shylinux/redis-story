@@ -1,8 +1,8 @@
 fieldset.web.code.redis.studio>div.action>div.tabs.master.select { border-top:var(--box-danger3); }
 fieldset.web.code.redis.studio>div.output>div.project div.item.master.select { border-left:var(--box-danger3); }
 fieldset.web.code.redis.studio>div.output>div.project div.item:not(.text) { padding:var(--button-padding); }
-fieldset.web.code.redis.keys>div.output>table.content tr.string td:first-child { color:green; }
-fieldset.web.code.redis.keys>div.output>table.content tr.hash td:first-child { color:blue; }
-fieldset.web.code.redis.keys>div.output>table.content tr.list td:first-child { color:red; }
-fieldset.web.code.redis.keys>div.output>table.content tr.zset td:first-child { color:yellow; }
-fieldset.web.code.redis.keys>div.output>table.content tr.set td:first-child { color:cyan; }
+fieldset.web.code.redis.keys>div.output>table.content tr.string td:first-child { color:var(--code-string); }
+fieldset.web.code.redis.keys>div.output>table.content tr.hash td:first-child { color:var(--code-keyword); }
+fieldset.web.code.redis.keys>div.output>table.content tr.list td:first-child { color:var(--code-function); }
+fieldset.web.code.redis.keys>div.output>table.content tr.zset td:first-child { color:var(--code-package); }
+fieldset.web.code.redis.keys>div.output>table.content tr.set td:first-child { color:var(--code-datatype); }
