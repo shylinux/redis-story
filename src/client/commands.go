@@ -15,6 +15,7 @@ type commands struct {
 	Client
 	export string `data:"true"`
 	short  string `data:"command"`
+	vendor string `data:"https://redis.io/docs/latest/commands/get/"`
 	field  string `data:"time,command,type,name,text"`
 }
 
@@ -45,7 +46,7 @@ func (s commands) List(m *ice.Message, arg ...string) {
 			})
 			m.PushRecord(value, kit.Split(m.Config(mdb.FIELD))...).PushButton(button...)
 		})
-	}).Action(html.FILTER).StatusTimeCountStats(mdb.TYPE).Sort("type,command", types, ice.STR)
+	}).Action(html.FILTER, s.Vendor).StatusTimeCountStats(mdb.TYPE).Sort("type,command", types, ice.STR)
 }
 
 func init() { ice.CodeModCmd(commands{}) }

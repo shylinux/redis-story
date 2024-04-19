@@ -8,6 +8,7 @@
 	"stats": "资源",
 	"cluster": "集群",
 	"slaveOf": "复制",
+	"del": "删除",
 	"icons": {
 		"studio": "redis.png",
 		"slaveOf": "bi bi-copy",
