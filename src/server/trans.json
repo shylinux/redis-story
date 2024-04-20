@@ -1,6 +1,9 @@
 {
 	"server": "数据库",
 	"cluster": "集群",
+	"icons": {
+		"cluster": "bi bi-clouds"
+	},
 	"input": {
 		"replicas": "复制",
 		"cluster-enabled": "集群"
