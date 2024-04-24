@@ -45,8 +45,7 @@ func (s commands) Pie(m *ice.Message, arg ...string) {
 	list := map[string]int{}
 	m.Cmd("", m.Option(aaa.SESS)).Table(func(value ice.Maps) { list[value[mdb.TYPE]]++ })
 	kit.For(list, func(k string, n int) { m.Push(mdb.KEY, k).Push(mdb.COUNT, n) })
-	m.Display("/plugin/story/pie.js")
-	m.SortIntR(mdb.COUNT)
+	m.DisplayStoryPie().SortIntR(mdb.COUNT)
 }
 func (s commands) List(m *ice.Message, arg ...string) {
 	if len(arg) == 0 {
