@@ -17,9 +17,21 @@ refer `
 "opentelemetry" "https://uptrace.dev/blog/opentelemetry-backend.html"
 `
 
-field web.code.git.source args `
+field "go-redis" web.code.git.source args `
 https://github.com/redis/go-redis
 usr/local/go-redis/ redis.go
+`
+
+section "stream"
+shell `
+XGROUP CREATE x1 g1 0-0 MKSTREAM
+XGROUP DESTROY x1
+
+XREADGROUP GROUP g1 c1 COUNT 10 BLOCK 1000000 STREAMS x1 >
+XREADGROUP GROUP g1 c2 COUNT 10 BLOCK 1000000 STREAMS x1 >
+XADD x1 * hi hello
+XRANGE x1 - +
+XINFO STREAM x1
 `
 
 field web.code.redis.client

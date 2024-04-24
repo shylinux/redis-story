@@ -116,9 +116,23 @@ func (s keys) keys(m *ice.Message, redis *redis, res ice.Any) {
 		case ZSET:
 			data, list := kit.Dict(), kit.Simple(redis.Done("ZRANGE", k, "0", "-1", "WITHSCORES"))
 			kit.For(list, func(k, v string) { data[k] = v })
-			value, button = data, append(button, s.Zadd, s.Zrem)
+			value, button = kit.Formats(data), append(button, s.Zadd, s.Zrem)
 		case SET:
 			value, button = redis.Done("SMEMBERS", k), append(button, s.Sadd, s.Srem)
+		case "stream":
+			value = kit.Dict()
+			kit.For(redis.Done("XINFO", "stream", k), func(k string, v ice.Any) {
+				if kit.IsIn(k, "first-entry", "last-entry") {
+					data := kit.Dict()
+					kit.For(kit.Value(v, 1), func(k string, v ice.Any) { data[k] = v })
+					kit.Value(value, kit.Keys(k, kit.Value(v, 0)), data)
+				} else {
+					kit.Value(value, k, v)
+				}
+			})
+			value = kit.Formats(value)
+		default:
+			value = ""
 		}
 		button = append(button, s.Expire, s.Rename, s.Del)
 		m.Push(mdb.TYPE, t).Push(TTL, ttl).Push(mdb.KEY, k)

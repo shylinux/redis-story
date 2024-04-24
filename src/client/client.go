@@ -14,6 +14,8 @@ import (
 )
 
 const (
+	BIN_REDIS_CLI = "bin/redis-cli"
+
 	REDIS = "redis"
 	INFO  = "info"
 	SAVE  = "save"
@@ -55,23 +57,24 @@ func (s client) Scan(m *ice.Message, arg ...string) {
 	})
 }
 func (s client) List(m *ice.Message, arg ...string) {
-	if s.Hash.List(m, arg...); len(arg) == 0 || arg[0] == "" {
-		m.PushAction(s.BgSave, s.Info, s.Xterm, s.Remove).Action(s.Create, s.Scan).Sort(tcp.PORT, ice.INT_R)
-	} else if len(arg) == 1 || arg[1] == "" {
-		m.PushAction(s.Info, s.Xterm, s.Remove).Action()
+	if s.Hash.List(m, arg...); len(arg) == 0 {
+		m.PushAction(s.Save, s.Info, s.Xterm, s.Remove).Action(s.Create, s.Scan).SortIntR(tcp.PORT)
+		kit.If(m.Length() == 0, func() { m.EchoInfoButton("please create sess", s.Create) })
+	} else if len(arg) == 1 {
+		m.PushAction(s.Save, s.Info, s.Xterm, s.Remove).Action()
 	} else {
 		m.SetAppend()
 		s.cmds(m, arg...)
 	}
 }
-func (s client) BgSave(m *ice.Message, arg ...string) {
+func (s client) Save(m *ice.Message, arg ...string) {
 	s.Cmds(m, "")
-}
-func (s client) Xterm(m *ice.Message, arg ...string) {
-	m.ProcessXterm(kit.Format("%s(%s:%s)", kit.Cut(m.Option(aaa.SESS), 6), m.Option(tcp.HOST), m.Option(tcp.PORT)), s.findCmdArgs(m, m.Option(aaa.SESS)), arg...)
 }
 func (s client) Info(m *ice.Message, arg ...string) {
 	m.Echo(kit.Format(s.cmdInfo(m, m.Option(aaa.SESS)))).DisplayStoryJSON()
+}
+func (s client) Xterm(m *ice.Message, arg ...string) {
+	m.ProcessXterm(kit.Format("%s(%s:%s)", kit.Cut(m.Option(aaa.SESS), 6), m.Option(tcp.HOST), m.Option(tcp.PORT)), s.findCmdArgs(m, m.Option(aaa.SESS)), arg...)
 }
 
 func init() { ice.CodeModCmd(client{}) }
@@ -81,8 +84,8 @@ func (s client) findCmdArgs(m *ice.Message, sess string) string {
 	return kit.Format("%s -h %s -p %s -a %s", s.findCmds(m, msg.Append(tcp.PORT)), msg.Append(tcp.HOST), msg.Append(tcp.PORT), msg.Append(aaa.PASSWORD))
 }
 func (s client) findCmds(m *ice.Message, port string) string {
-	cmd := "redis-cli"
-	nfs.Exists(m.Message, path.Join(ice.USR_LOCAL_DAEMON, port, "bin/redis-cli"), func(p string) { cmd = p })
+	cmd := path.Base(BIN_REDIS_CLI)
+	nfs.Exists(m.Message, path.Join(ice.USR_LOCAL_DAEMON, port, BIN_REDIS_CLI), func(p string) { cmd = p })
 	return cmd
 }
 func (s client) cmdInfo(m *ice.Message, sess string) ice.Any {

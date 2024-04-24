@@ -1,11 +1,11 @@
 package client
 
 import (
+	"path"
 	"strings"
 
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/aaa"
-	"shylinux.com/x/icebergs/base/cli"
 	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/nfs"
 	"shylinux.com/x/icebergs/base/tcp"
@@ -20,11 +20,12 @@ const (
 
 type cluster struct {
 	Client
-	create  string `name:"create cluster-replicas*=1"`
-	slaveOf string `name:"slaveOf to*"`
-	reshard string `name:"reshard from* to* slots"`
-	add     string `name:"add from* to"`
-	del     string `name:"del from*"`
+	create    string `name:"create cluster-replicas*=1"`
+	slaveOf   string `name:"slaveOf to*"`
+	rebalance string `name:"rebalance" icon:"bi bi-diagram-3"`
+	reshard   string `name:"reshard from* to* slots" icon:"bi bi-pie-chart"`
+	add       string `name:"add from* to" icon:"bi bi-box-arrow-in-left"`
+	del       string `name:"del from*" icon:"bi bi-box-arrow-right"`
 }
 
 func (s cluster) Create(m *ice.Message, arg ...string) {
@@ -33,7 +34,7 @@ func (s cluster) Create(m *ice.Message, arg ...string) {
 		return
 	}
 	list := m.CmdMap(s.Client, aaa.SESS)
-	cmd, password, args := "redis-cli", "", []string{}
+	cmd, password, args := path.Base(BIN_REDIS_CLI), "", []string{}
 	kit.For(kit.Split(m.Option(aaa.SESS)), func(p string) {
 		cmd, password = s.findCmds(m, list[p][tcp.PORT]), list[p][aaa.PASSWORD]
 		args = append(args, tcp.HostPort(list[p][tcp.HOST], list[p][tcp.PORT]))
@@ -43,7 +44,7 @@ func (s cluster) Create(m *ice.Message, arg ...string) {
 		return
 	}
 	m.SystemCmd(cmd, "-a", password, "--cluster", mdb.CREATE, args, s.Code.Args(m), "--cluster-yes")
-	m.Sleep(cli.TIME_3s).Cmd(s.Client, s.Scan)
+	m.Sleep("3s").Cmd(s.Client, s.Client.Scan)
 }
 func (s cluster) List(m *ice.Message, arg ...string) {
 	if len(arg) == 0 {
@@ -75,7 +76,9 @@ func (s cluster) SlaveOf(m *ice.Message, arg ...string) {
 	m.Cmd(s.Client, s.Client.Scan)
 }
 func (s cluster) Rebalance(m *ice.Message, arg ...string) {
-	s.Cmds(m, "", func(node string, from *ice.Message) []string { return []string{node} })
+	s.Cmds(m, "", func(node string, from *ice.Message) []string {
+		return []string{node}
+	})
 }
 func (s cluster) Reshard(m *ice.Message, arg ...string) {
 	s.Cmds(m, "", func(node string, from *ice.Message) []string {
@@ -93,7 +96,9 @@ func (s cluster) Add(m *ice.Message, arg ...string) {
 	})
 }
 func (s cluster) Del(m *ice.Message, arg ...string) {
-	s.Cmds(m, "del-node", func(node string, from *ice.Message) []string { return []string{node, from.Append(NODEID)} })
+	s.Cmds(m, "del-node", func(node string, from *ice.Message) []string {
+		return []string{node, from.Append(NODEID)}
+	})
 }
 
 func init() { ice.CodeModCmd(cluster{}) }

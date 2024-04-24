@@ -6,3 +6,4 @@ fieldset.web.code.redis.keys>div.output>table.content tr.hash td:first-child { c
 fieldset.web.code.redis.keys>div.output>table.content tr.list td:first-child { color:var(--code-function); }
 fieldset.web.code.redis.keys>div.output>table.content tr.zset td:first-child { color:var(--code-package); }
 fieldset.web.code.redis.keys>div.output>table.content tr.set td:first-child { color:var(--code-datatype); }
+fieldset.web.code.redis.keys>div.output>table.content tr.stream td:first-child { color:var(--code-comment); }

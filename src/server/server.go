@@ -42,7 +42,7 @@ logfile redis.log
 `, path.Base(p), bind, password, m.Option(CLUSTER_ENABLED)))
 		return kit.Simple("redis.conf")
 	})
-	m.Cmd(s.client, mdb.CREATE, aaa.SESS, kit.Hashs(bind, m.Option(tcp.PORT)), tcp.HOST, bind, tcp.PORT, m.Option(tcp.PORT), aaa.PASSWORD, password)
+	m.Cmd(s.client, s.client.Create, aaa.SESS, kit.Hashs(bind, m.Option(tcp.PORT)), tcp.HOST, bind, tcp.PORT, m.Option(tcp.PORT), aaa.PASSWORD, password)
 	kit.If(m.Option(CLUSTER_ENABLED) == "no", func() { m.Sleep("3s").Cmd(s.client, s.client.Scan) })
 }
 func (s server) Cluster(m *ice.Message, arg ...string) {
