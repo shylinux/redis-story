@@ -9,7 +9,7 @@ import (
 type studio struct {
 	Client
 	online string `data:"true"`
-	tools  string `data:"web.code.redis.server,web.code.redis.client,cluster"`
+	tools  string `data:"web.code.redis.server,web.code.redis.client,web.code.redis.cluster"`
 	create string `name:"create sess*=biz host*=localhost port*=10001 password*=root"`
 	list   string `name:"list list"`
 }

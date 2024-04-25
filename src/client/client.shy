@@ -4,22 +4,12 @@ refer `
 文档 https://redis.uptrace.dev/guide/
 `
 
-section "uptrace"
-refer `
-源码 https://github.com/uptrace/uptrace
-体验 https://app.uptrace.dev/metrics/1/explore
-简介 https://uptrace.dev/blog/opentelemetry-backend.html
-`
-
-refer `
-"tcp timeout" "https://vincent.bernat.ch/en/blog/2014-tcp-time-wait-state-linux#summary"
-"context deadline" "https://uptrace.dev/blog/context-deadline-exceeded.html"
-"opentelemetry" "https://uptrace.dev/blog/opentelemetry-backend.html"
-`
-
 field "go-redis" web.code.git.source args `
 https://github.com/redis/go-redis
 usr/local/go-redis/ redis.go
+`
+field web.code.git.tags args `
+usr/local/go-redis/
 `
 
 section "stream"
@@ -34,11 +24,15 @@ XRANGE x1 - +
 XINFO STREAM x1
 `
 
-field web.code.redis.client
-field web.code.redis.commands
-field web.code.redis.configs
-field web.code.redis.keys
-field web.code.redis.stats
-field web.code.redis.shells
-field web.code.redis.cluster
+section "uptrace"
+refer `
+源码 https://github.com/uptrace/uptrace
+体验 https://app.uptrace.dev/metrics/1/explore
+简介 https://uptrace.dev/blog/opentelemetry-backend.html
+`
 
+refer `
+"tcp timeout" "https://vincent.bernat.ch/en/blog/2014-tcp-time-wait-state-linux#summary"
+"context deadline" "https://uptrace.dev/blog/context-deadline-exceeded.html"
+"opentelemetry" "https://uptrace.dev/blog/opentelemetry-backend.html"
+`
