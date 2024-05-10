@@ -1,9 +1,9 @@
 Volcanos(chat.ONIMPORT, {
 	_init: function(can, msg) { can.require(["/plugin/story/studiolayout.js"], function() {
-		can.onimport.project(can, msg, aaa.SESS, function(event, sess, value) { var ui = {}; return {
-			display: {index: "web.code.redis.shells", args: sess, _init: function(sub) { ui.display = sub }},
+		can.onimport.project(can, msg, aaa.SESS, function(event, sess, value) { return {
 			content: {index: "web.code.redis.keys", args: sess},
-			profile: can.isCmdMode() && can.onimport._commands(can, sess, ui),
+			display: {index: "web.code.redis.shells", args: sess},
+			profile: can.isCmdMode() && can.onimport._commands(can, sess),
 		} })
 	}) },
 	_commands: function(can, sess, ui) {
@@ -30,5 +30,5 @@ Volcanos(chat.ONIMPORT, {
 			}
 		}}
 	},
-	_nick: function(can, value) { return value.sess.slice(0, 6)+`(${value.host}:${value.port}) ${value.role}` },
+	_nick: function(can, value) { return {text: [value.sess.slice(0, 6)+`(${value.host}:${value.port}) ${value.role}`, "", html.NAME]} },
 }, [""])

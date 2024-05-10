@@ -1,5 +1,5 @@
 {
-	"server": "数据库",
+	"server": "缓存",
 	"cluster": "集群",
 	"icons": {
 		"cluster": "bi bi-clouds"

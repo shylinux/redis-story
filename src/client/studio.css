@@ -1,5 +1,5 @@
-fieldset.web.code.redis.studio>div.action>div.tabs.master.select { border-top:var(--box-danger3); }
-fieldset.web.code.redis.studio>div.output>div.project div.item.master.select { border-left:var(--box-danger3); }
+fieldset.web.code.redis.studio>div.action div.tabs.master.select { border-top:var(--box-danger3); }
+fieldset.web.code.redis.studio>div.output>div.project div.item.master.select { border-right:var(--box-danger3); }
 fieldset.web.code.redis.studio>div.output>div.project div.item:not(.text) { padding:var(--button-padding); }
 fieldset.web.code.redis.keys>div.output>table.content tr.string td:first-child { color:var(--code-string); }
 fieldset.web.code.redis.keys>div.output>table.content tr.hash td:first-child { color:var(--code-keyword); }
