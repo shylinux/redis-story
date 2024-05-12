@@ -4,7 +4,6 @@ import (
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/aaa"
 	"shylinux.com/x/icebergs/base/mdb"
-	"shylinux.com/x/icebergs/base/web/html"
 	kit "shylinux.com/x/toolkits"
 )
 
@@ -19,6 +18,7 @@ type commands struct {
 	limit  string `data:"300"`
 	vendor string `data:"https://redis.io/docs/latest/commands/get/"`
 	field  string `data:"time,command,order,type,name,text"`
+	list   string `name:"list sess command auto"`
 }
 
 var types = []string{
@@ -50,24 +50,26 @@ func (s commands) Pie(m *ice.Message, arg ...string) {
 func (s commands) List(m *ice.Message, arg ...string) {
 	if len(arg) == 0 {
 		s.Client.List(m, arg...)
-		return
-	}
-	list := map[string]ice.Maps{}
-	s.Hash.List(m.Spawn()).Table(func(value ice.Maps) { list[value[COMMAND]] = value })
-	m.Cmdy(s.Client, arg[0], COMMAND, func(res ice.Any) {
-		kit.For(res, func(value ice.Any) {
-			command := kit.Format(kit.Value(value, "0"))
-			value, ok := list[command]
-			button := []ice.Any{}
-			kit.If(!ok, func() {
-				value, button = map[string]string{mdb.TIME: m.Time(), mdb.TYPE: "unknown", COMMAND: command}, append(button, s.HelpCmd, s.Create)
-			}, func() {
-				button = append(button, s.Remove)
+	} else if len(arg) == 1 {
+		list := map[string]ice.Maps{}
+		s.Hash.List(m.Spawn()).Table(func(value ice.Maps) { list[value[COMMAND]] = value })
+		m.Cmdy(s.Client, arg[0], COMMAND, func(res ice.Any) {
+			kit.For(res, func(value ice.Any) {
+				command := kit.Format(kit.Value(value, "0"))
+				value, ok := list[command]
+				button := []ice.Any{}
+				kit.If(!ok, func() {
+					value, button = map[string]string{mdb.TIME: m.Time(), mdb.TYPE: "unknown", COMMAND: command}, append(button, s.HelpCmd, s.Create)
+				}, func() {
+					button = append(button, s.Remove)
+				})
+				m.PushRecord(value, kit.Split(m.Config(mdb.FIELD))...).PushButton(button...)
 			})
-			m.PushRecord(value, kit.Split(m.Config(mdb.FIELD))...).PushButton(button...)
 		})
-	})
-	m.Action(html.FILTER, s.Create, s.Pie, s.Vendor).StatusTimeCountStats(mdb.TYPE).Sort("type,order,command", types, ice.STR, ice.STR)
+		m.Action(s.Create, s.Pie, s.Vendor).StatusTimeCountStats(mdb.TYPE).Sort("type,order,command", types, ice.STR, ice.STR)
+	} else {
+		s.Hash.List(m, arg[1])
+	}
 }
 
 func init() { ice.CodeModCmd(commands{}) }

@@ -5,7 +5,6 @@ import (
 	"shylinux.com/x/icebergs/base/aaa"
 	"shylinux.com/x/icebergs/base/lex"
 	"shylinux.com/x/icebergs/base/mdb"
-	"shylinux.com/x/icebergs/base/web/html"
 	kit "shylinux.com/x/toolkits"
 )
 
@@ -36,6 +35,7 @@ type keys struct {
 	srem   string `name:"srem member"`
 	zadd   string `name:"zadd score member"`
 	zrem   string `name:"zrem member"`
+	list   string `name:"list sess pattern auto"`
 }
 
 func (s keys) Modify(m *ice.Message, arg ...string) {
@@ -74,7 +74,7 @@ func (s keys) List(m *ice.Message, arg ...string) {
 			s.keys(m, redis, kit.Value(res, 1))
 			m.StatusTimeCount(mdb.NEXT, kit.Value(res, 0))
 		}
-	}).Action(html.FILTER, s.Prunes).Sort(mdb.KEY)
+	}).Action(s.Prunes).Sort(mdb.KEY)
 }
 func (s keys) Get(m *ice.Message, arg ...string)    { m.Echo(s.Cmds(m).Append(ice.RES)) }
 func (s keys) Set(m *ice.Message, arg ...string)    { s.Cmds(m, m.Option(mdb.VALUE)) }
