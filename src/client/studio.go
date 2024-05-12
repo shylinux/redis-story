@@ -11,7 +11,7 @@ type studio struct {
 	online string `data:"true"`
 	tools  string `data:"web.code.redis.server,web.code.redis.client,web.code.redis.cluster"`
 	create string `name:"create sess*=biz host*=localhost port*=10001 password*=root"`
-	list   string `name:"list list"`
+	list   string `name:"list list" icon:"redis.png"`
 }
 
 func (s studio) Create(m *ice.Message, arg ...string) { m.Cmdy(s.Client, m.ActionKey(), arg) }

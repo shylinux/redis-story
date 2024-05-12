@@ -10,7 +10,6 @@
 	"slaveOf": "复制",
 	"del": "删除",
 	"icons": {
-		"studio": "redis.png",
 		"slaveOf": "bi bi-copy",
 		"clusterCreate": "bi bi-pie-chart",
 		"bgSave": "bi bi-floppy",
