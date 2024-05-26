@@ -4,7 +4,6 @@ import (
 	"shylinux.com/x/ice"
 	"shylinux.com/x/icebergs/base/mdb"
 	"shylinux.com/x/icebergs/base/nfs"
-	"shylinux.com/x/icebergs/base/web/html"
 	kit "shylinux.com/x/toolkits"
 )
 
@@ -33,7 +32,7 @@ func (s configs) List(m *ice.Message, arg ...string) {
 	m.FieldsSetDetail()
 	m.Cmdy(s.Client, arg[0], CONFIG, GET, kit.Select("*", arg, 1), func(res ice.Any) {
 		kit.For(res, func(k string, v ice.Any) { m.Push(k, v) })
-	}).Action(html.FILTER).Sort(mdb.KEY)
+	}).Sort(mdb.KEY)
 }
 
 func init() { ice.CodeModCmd(configs{}) }
